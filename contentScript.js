@@ -1,3 +1,4 @@
+
 function l(message) {
     //console.log('scribeMonster', { ...message })
 }
@@ -106,6 +107,7 @@ function addButton(page) {
         </style>
         <h3>Help me help you!</h3>
         <button id="scribeMonsterCloseBtn" onClick="(()=>{document.getElementById('scribeMonsterModal').classList.toggle('hidden');document.getElementById('scribeMonsterOverlay').classList.toggle('hidden');})()" type="button" class="btn-close">⨉</button>
+        
       </div>
       <div>
         <p>
@@ -166,6 +168,12 @@ function fetchScribeMonster(page) {
                 .then(response => {
                     console.log({response});
                     document.getElementById(page.scriptElement).value = response.code;
+                    var b64 = window.btoa(response.code);
+                    const newBtn = document.createElement("div");
+            newBtn.innerHTML = `<button id="setValue" class="" onClick="(()=>{console.log('trying to set ${page.scriptElement.split('.')[1]}, ${b64}');g_form.setValue('${page.scriptElement.split('.')[1]}',window.atob('${b64}'))})()"></button>`
+            document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
+            document.getElementById('setValue').click();
+            document.getElementById('scribeMonsterOverlay').innerHTML="";
                 })
                 .catch(err => console.error(err));
         }
