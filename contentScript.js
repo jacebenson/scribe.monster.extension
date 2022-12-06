@@ -109,8 +109,7 @@ function addButton(page) {
       </div>
       <div>
         <p>
-          This is a dummy newsletter form so don't bother trying to test it. Not
-          that I expect you to, anyways. :)
+          This is.. special
         </p>
       </div>
       <input id="scribeMonsterInstruction" placeholder="tell me what to do" />
