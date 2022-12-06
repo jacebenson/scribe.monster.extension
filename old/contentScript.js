@@ -8,12 +8,39 @@ function injectScript(file, node) {
     s.setAttribute('src', file);
     th.appendChild(s);
 }
+function getTitle() {
+    return document.title;
+  }
+  const tabId = getTabId();
+(()=>{
+    console.log('scribeMonster before executescript')
+    chrome.scripting.executeScript(
+        console.log('scribeMonster in executescript')
+      {
+        target: {tabId: tabId, allFrames: true},
+        func: getTitle,
+      },
+      (injectionResults) => {
+        for (const frameResult of injectionResults)
+          console.log('Frame Title: ' + frameResult.result);
+      });
+})()
+
 try {
     //wait for window to load....
     window.addEventListener('load', function () {
 
-        injectScript( chrome.extension.getURL('/g_form.js'), 'body');
-
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            currentTab =  tabs[0];
+            console.log('scribeMonster tab', currentTab)
+            chrome.scripting.executeScript(
+                {
+                  target: {tabId: currentTab.tabId, allFrames: true},
+                  files: ['inject.js'],
+                },
+                () => { console.log('hello') });
+            
+        });
         let tablink = window.location.toString()
         l({tablink})
         //chrome.storage.sync.get(['scribeMonsterAuth'], function (data) {
