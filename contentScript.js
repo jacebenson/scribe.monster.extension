@@ -39,6 +39,8 @@ function addButton(page) {
             z-index: 10000;
             justify-content: space-between;
             align-items: stretch;
+            margin-left: 30%;
+
           }
       
           #scribeMonsterModal .flex {
@@ -102,7 +104,7 @@ function addButton(page) {
             z-index: 10;
           }
         </style>
-        <h3>Stay in touch</h3>
+        <h3>Help me help you!</h3>
         <button id="scribeMonsterCloseBtn" onClick="(()=>{document.getElementById('scribeMonsterModal').classList.toggle('hidden');document.getElementById('scribeMonsterOverlay').classList.toggle('hidden');})()" type="button" class="btn-close">⨉</button>
       </div>
       <div>
@@ -148,18 +150,24 @@ function fetchScribeMonster(page) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: data.scribeMonsterAuth
+                    'Authorization': data.scribeMonsterAuth
                 },
                 body: JSON.stringify({
-                    instruction: "get a joke from jokes.jace.pro and show it as message",
-                    "input": "(function executeRule(current, previous /*null when async*/) {\n//add your code here\n})(current,previous);",
+                    instruction: document.getElementById('scribeMonsterInstruction').value,
+                    input: document.getElementById(page.scriptElement).value,
                     "model": "code-davinci-edit-001"
                 })
             };
-
+            l({message:'trying to set script value...', scriptElement: page.scriptElement, element: document.getElementById(page.scriptElement)})
+            //document.getElementById(page.scriptElement).value = 'requested!'
+            document.getElementById('scribeMonsterModal').classList.toggle('hidden');
+            document.getElementById('scribeMonsterOverlay').classList.toggle('hidden');
             fetch('https://scribe.monster/.redwood/functions/scribe', options)
                 .then(response => response.json())
-                .then(response => console.log({response}))
+                .then(response => {
+                    console.log({response});
+                    document.getElementById(page.scriptElement).value = response.code;
+                })
                 .catch(err => console.error(err));
         }
     });
