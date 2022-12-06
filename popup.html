@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Scibe Monster</title>
+    <!-- CSS only -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container mt-3" style="width: 450px;">
+        <h2 class="text-center">Scribe Monster</h2>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Profile</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab" aria-controls="messages" aria-selected="false">Messages</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Settings</button>
+            </li>
+          </ul>
+          
+          <div class="tab-content">
+            <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">...1</div>
+            <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">...2</div>
+            <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">...3</div>
+            <!-- SETTINGS -->
+            <div class="tab-pane" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                <form>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label" for="user">Debug</label> 
+                        <div class="col-8">
+                          <input id="debug" name="debug" placeholder="" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-4 col-form-label" for="user">Username</label> 
+                        <div class="col-8">
+                          <input id="user" name="user" placeholder="myusername" type="text" class="form-control" required="required">
+                        </div>
+                      </div>
+                    <div class="form-group row">
+                      <label for="key" class="col-4 col-form-label">Key</label> 
+                      <div class="col-8">
+                        <input id="key" name="key" placeholder="from scribe.monster" type="password" class="form-control" required="required">
+                      </div>
+                    </div> 
+                    <div class="form-group row">
+                      <div class="offset-4 col-8">
+                        <button type="button" name="button-update" id="button-update" class="btn btn-primary">Save</button>
+                      </div>
+                    </div>
+                  </form>
+            </div>
+          </div>
+          
+    </div>
+    
+<hr />
+    <label for="select-title">Title</label>
+    <textarea rows="3" name="select-title" id="select-title"></textarea>
+    <br />
+    <label for="select-url">Url</label>
+    <textarea rows="5" name="select-url" id="select-url"></textarea>
+    <br />
+    <button type="button" name="button-submit" id="button-getter">Get URL and Title</button>
+    <button type="button" name="button-submit" id="button-submit">Submit News</button>
+    <pre id="response"></pre>
+    <script src="popup.js"></script>
+</body>
+
+</html>

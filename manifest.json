@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "Scribe Monster",
+    "description": "Scribe Monster",
+    "version": "1.0",
+    "permissions": ["activeTab", "scripting", "tabs", "storage"],
+    "action": {
+        "default_title": "Click Me",
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+          "matches": ["<all_urls>"],
+          "run_at": "document_end",
+          "js": ["content_script.js"],
+          "all_frames": true
+        }
+      ],
+      "web_accessible_resources": [
+        {"resources": ["inject.js"]}
+      ]
+}
