@@ -1,5 +1,5 @@
 function l(message) {
-    console.log('scribeMonster', { ...message })
+    //console.log('scribeMonster', { ...message })
 }
 function addButton(page) {
     try {
