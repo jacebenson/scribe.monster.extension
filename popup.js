@@ -1,7 +1,7 @@
-let getAuthString = (user, key)=>{
+let getAuthString = (user, key) => {
   return "Basic " + btoa(`${user}:${key}`)
 }
-let setDebug = (text)=>{
+let setDebug = (text) => {
   //document.querySelector('#debug').value = text
 }
 let updateKey = () => {
@@ -9,15 +9,40 @@ let updateKey = () => {
   let scribeMonsterKey = document.querySelector('#key').value;
   let scribeMonsterUser = document.querySelector('#user').value;
   let scribeMonsterAuth = getAuthString(scribeMonsterUser, scribeMonsterKey);
-  chrome.storage.sync.set({ scribeMonsterKey, scribeMonsterUser, scribeMonsterAuth }, () => {
-    document.querySelector('#button-update').disabled = true;
-    document.querySelector('#button-update').innerText = 'Auth is set.';
-    setDebug('setting to: ' + `${scribeMonsterUser}:${scribeMonsterKey}`)
-    setTimeout(() => {
-      document.querySelector('#button-update').disabled = false;
-      document.querySelector('#button-update').innerText = 'Set your auth';
-    }, 1000);
-  });
+  const options = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': scribeMonsterAuth
+    },
+  };
+  document.querySelector('#button-update').disabled = true;
+  document.querySelector('#button-update').innerText = 'Checking...';
+  document.querySelector('#button-update').classList.remove('btn-danger')
+  fetch('https://scribe.monster/.redwood/functions/verifyKey', options)
+    .then(response => response.json())
+    .then(response => {
+      console.log({ response });
+
+      if (response?.message === 'success') {
+        chrome.storage.sync.set({ scribeMonsterKey, scribeMonsterUser, scribeMonsterAuth }, () => {
+          document.querySelector('#button-update').disabled = true;
+          document.querySelector('#button-update').innerText = 'Success';
+          setDebug('setting to: ' + `${scribeMonsterUser}:${scribeMonsterKey}`)
+          setTimeout(() => {
+            document.querySelector('#button-update').disabled = false;
+            document.querySelector('#button-update').innerText = 'Save';
+          }, 1000);
+        });
+      }
+      if(response?.error){
+        document.querySelector('#button-update').classList.toggle('btn-danger')
+        document.querySelector('#button-update').innerText = 'Invalid Key';
+        setTimeout(() => {
+          document.querySelector('#button-update').disabled = false;
+          document.querySelector('#button-update').innerText = 'Try again';
+        }, 1000);
+      }
+    })
 }
 
 let scribeMonsterAuth = false;

@@ -1,10 +1,35 @@
 
-function l(message) {
-    //console.log('scribeMonster', { ...message })
-}
+// Pages to add the script button to;
+var pagesToRunOn = [
+    {
+        name: "Client Script",
+        path: "/sys_script_client.do",
+        labelButtonSelector: '[for="sys_script_client.script"]',
+        scriptElement: 'sys_script_client.script'
+    },
+    {
+        name: "Client Script",
+        path: "/catalog_script_client.do",
+        labelButtonSelector: '[for="catalog_script_client.script"]',
+        scriptElement: 'catalog_script_client.script'
+    },
+    {
+        name: "Business Rule",
+        path: "/sys_script.do",
+        labelButtonSelector: '[for="sys_script.script"]',
+        scriptElement: 'sys_script.script'
+    },
+    {
+        name: "Script Includes",
+        path: "/sys_script_include.do",
+        labelButtonSelector: '[for="sys_script_include.script"]',
+        scriptElement: 'sys_script_include.script'
+    },
+]
+
 function addButton(page) {
     try {
-        l({ page: page })
+        l({ function: 'addButton', page })
         const newSpan = document.createElement("span");
         const scribeMonsterBtn = document.createElement("button");
         scribeMonsterBtn.setAttribute("onClick", "console.log('ScribeMonster Button Click')");
@@ -12,11 +37,10 @@ function addButton(page) {
         const scribeMonsterImg = document.createElement("img");
         scribeMonsterImg.src = chrome.runtime.getURL("assets/scribeMonster.png");
         scribeMonsterImg.className = "btn btn-sm ";
-        //scribeMonsterImg.title = "Ask ScribeMonster to help write this!";
+        scribeMonsterImg.title = "Ask Stew to help write this!";
         newSpan.appendChild(scribeMonsterBtn);
         scribeMonsterBtn.appendChild(scribeMonsterImg);
         scribeMonsterBtn.addEventListener("click", function () { askForCode({ element: page.scriptElement }) });
-        //document.getElementById('sys_script_client.script').value;
         const elementToAppendTo = document.querySelector(page.labelButtonSelector);
         elementToAppendTo?.appendChild(newSpan);
         const newModal = document.createElement("div");
@@ -31,7 +55,7 @@ function addButton(page) {
             gap: 0.4rem;
             width: 450px;
             padding: 1.3rem;
-            min-height: 250px;
+            min-height: 150px;
             position: absolute;
             top: 20%;
             background-color: white;
@@ -110,70 +134,78 @@ function addButton(page) {
         
       </div>
       <div>
-        <p>
-          This is.. special
-        </p>
+      <div id="scribeMonsterMessage">Give me some instructions!</div>
+      <div id="scribeMonsterForm" class="flex">
+        <input style="width: 75%" id="scribeMonsterInstruction" placeholder="Tell me what to do" />
+        <button type="button" id="scribeMonsterFetchButton" class="btn">Submit</button>
       </div>
-      <input id="scribeMonsterInstruction" placeholder="tell me what to do" />
-      <button type="button" id="scribeMonsterFetchButton" class="btn">Submit</button>
+      </div>
       </section>
       <div id="scribeMonsterOverlay" class="hidden"></div>
       </div>
         `
-        //modalFetchButton.addEventListener("click", function () { _fetchScribeMonster(...page) });
-        //elementToAppendTo?.appendChild(newModal);
-        //let closeModalButton = document.getElementById('scribeMonsterCloseBtn')
-        //l({closeModalButton})
-        //closeModalButton.addEventListener("click", function () {
-        //    closeModal();
-        //});
         let body = document.querySelector('body')
         body?.appendChild(newModal)
 
     } catch (error) {
-        l({ function: "addButton", error })
+        l({ function: "addButton error", error })
     }
+}
+function setProgressText() {
+    let emojis = ['🤔', '📝', '🫤', '🧠', '💡', '📖', '📝', '😟', '😠', '🤬'];
+    let index = 0;
+    let timer = setInterval(function () {
+        let listOfEmojis = emojis.filter((emoji, indexE) => {
+            return indexE <= index}).join(' ');
+        document.getElementById('scribeMonsterMessage').innerHTML = listOfEmojis;
+        index++;
+        if (index >= emojis.length) {
+            clearInterval(timer);
+        }
+    }, 1000);
+
+    setTimeout(function () {
+        if (index < emojis.length) {
+            clearInterval(timer);
+            document.getElementById('scribeMonsterMessage').innerHTML = "I'm all ears!";
+            console.log('Error');
+        }
+    }, 10000);
 }
 function fetchScribeMonster(page) {
     // look up these! auth,instruction,input
-    l({
-        function:"_fecthScribeMonster", 
-        script: document.getElementById(page.scriptElement)})
-    chrome.storage.sync.get(['scribeMonsterKey', 'scribeMonsterUser', 'scribeMonsterAuth'], function (data) {
-        if (data.scribeMonsterAuth) {
-            l({ 
-                scribeMonsterAuth: data.scribeMonsterAuth,
-                instruction: document.getElementById('scribeMonsterInstruction').value,
-                input: document.getElementById(page.scriptElement).value
-             })
-
+    l({ function: "fecthScribeMonster", script: document.getElementById(page.scriptElement) })
+    chrome.storage.sync.get(['scribeMonsterAuth'], function (data) {
+        let scribeMonsterAuth = data.scribeMonsterAuth;
+        let instruction = document.getElementById('scribeMonsterInstruction').value;
+        let input = document.getElementById(page.scriptElement).value;
+        let model = "code-davinci-edit-001"
+        if (scribeMonsterAuth) {
+            let body = { instruction, input, model }
+            l({ body })
             const options = {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': data.scribeMonsterAuth
+                    'Authorization': scribeMonsterAuth
                 },
-                body: JSON.stringify({
-                    instruction: document.getElementById('scribeMonsterInstruction').value,
-                    input: document.getElementById(page.scriptElement).value,
-                    "model": "code-davinci-edit-001"
-                })
+                body: JSON.stringify(body)
             };
-            l({message:'trying to set script value...', scriptElement: page.scriptElement, element: document.getElementById(page.scriptElement)})
-            //document.getElementById(page.scriptElement).value = 'requested!'
-            document.getElementById('scribeMonsterModal').classList.toggle('hidden');
-            document.getElementById('scribeMonsterOverlay').classList.toggle('hidden');
+            setProgressText();
             fetch('https://scribe.monster/.redwood/functions/scribe', options)
                 .then(response => response.json())
                 .then(response => {
-                    console.log({response});
+                    console.log({ response });
+                    document.getElementById('scribeMonsterModal').classList.add('hidden');
+                    document.getElementById('scribeMonsterOverlay').classList.add('hidden');
                     document.getElementById(page.scriptElement).value = response.code;
-                    var b64 = window.btoa(response.code);
+                    var codeInBase64 = window.btoa(response.code);
+                    var fieldToSet = page.scriptElement.split('.')[1];
                     const newBtn = document.createElement("div");
-            newBtn.innerHTML = `<button id="setValue" class="" onClick="(()=>{console.log('trying to set ${page.scriptElement.split('.')[1]}, ${b64}');g_form.setValue('${page.scriptElement.split('.')[1]}',window.atob('${b64}'))})()"></button>`
-            document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
-            document.getElementById('setValue').click();
-            document.getElementById('scribeMonsterOverlay').innerHTML="";
+                    newBtn.innerHTML = `<button id="setValue" onClick="(()=>{g_form.setValue('${fieldToSet}',window.atob('${codeInBase64}'))})()"></button>`
+                    document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
+                    document.getElementById('setValue').click();
+                    document.getElementById('scribeMonsterOverlay').innerHTML = "";
                 })
                 .catch(err => console.error(err));
         }
@@ -182,44 +214,16 @@ function fetchScribeMonster(page) {
 function askForCode(scriptElement) {
     try {
         l({ script: document.getElementById(scriptElement.element)?.value })
-        let modal = document.getElementById('scribeMonsterModal');
-        modal.classList.toggle('hidden');
-        document.getElementById('scribeMonsterOverlay').classList.toggle('hidden');
+        document.getElementById('scribeMonsterModal').classList.remove('hidden');
+        document.getElementById('scribeMonsterOverlay').classList.remove('hidden');
     } catch (error) {
         l({ function: "askForCode", error })
     }
 }
-function closeModal(){
-    let modal = document.getElementById('scribeMonsterModal');
-    l({function: "closeModal", modal})
-        modal.classList.toggle('hidden');
-}
-var pagesToRunOn = [
-    {
-        name: "Client Script",
-        path: "/sys_script_client.do",
-        labelButtonSelector: '[for="sys_script_client.script"]',
-        scriptElement: 'sys_script_client.script'
-    },
-    {
-        name: "Client Script",
-        path: "/catalog_script_client.do",
-        labelButtonSelector: '[for="catalog_script_client.script"]',
-        scriptElement: 'catalog_script_client.script'
-    },
-    {
-        name: "Business Rule",
-        path: "/sys_script.do",
-        labelButtonSelector: '[for="sys_script.script"]',
-        scriptElement: 'sys_script.script'
-    },
-    {
-        name: "Script Includes",
-        path: "/sys_script_include.do",
-        labelButtonSelector: '[for="sys_script_include.script"]',
-        scriptElement: 'sys_script_include.script'
-    },
-]
+
+
+
+// adds the button to the pages
 var currentPageToRun = pagesToRunOn.filter(function (page) {
     let pathMatches = window.location.pathname.startsWith(page.path)
     return pathMatches;
@@ -229,31 +233,12 @@ window.addEventListener('load', function () {
     if (currentPageToRun?.name) {
         addButton({ ...currentPageToRun });
         let modalFetchButton = document.getElementById("scribeMonsterFetchButton")
-        modalFetchButton.addEventListener("click", function () { fetchScribeMonster({...currentPageToRun}) })
-        
-    }
-    //pagesToRunOn.forEach(page)
-    if (window.location.pathname.startsWith('/incident.do')) {
-        //var frameExists = typeof window.frames["gsft_main"] === 'object';
-        l({ location: window.location })
-        try {
-            var num = document.getElementById('incident.number');
-            l({ num: num.value })
-            //var gum = window.g_form.getValue('number');//doesnt work!
-            //l({ gum })
-            num.value = 'haha';
-            l({ num: num.value })
-        } catch (error) {
-            l({ message: "try/catch lookign for inc.number", error })
-        }
-        var frameExists = typeof window.frames[window.frames.length] === 'object';
-        if (frameExists) {
-            var thisFrame = window.frames[window.frames.length].document
-            var number = thisFrame.getElementById('incident.number').value;
-            l({ number });
-        }
-        if (!frameExists) {
-            l({ message: 'frame not found!', frames: window })
-        }
+        modalFetchButton.addEventListener("click", function () { fetchScribeMonster({ ...currentPageToRun }) })
+
     }
 })
+
+function log(message) {
+    //console.log('scribeMonster', { ...message })
+}
+let l = log
