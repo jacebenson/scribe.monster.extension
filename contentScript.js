@@ -26,7 +26,7 @@ var pagesToRunOn = [
         scriptElement: 'sys_script_include.script'
     },
 ]
-
+let progressTimer;
 function addButton(page) {
     try {
         l({ function: 'addButton', page })
@@ -134,9 +134,15 @@ function addButton(page) {
         
       </div>
       <div>
+      <div id="scribeMonsterProgress"></div>
       <div id="scribeMonsterMessage">Give me some instructions!</div>
       <div id="scribeMonsterForm" class="flex">
-        <input style="width: 75%" id="scribeMonsterInstruction" placeholder="Tell me what to do" />
+      <input style="width: 75%" id="scribeMonsterInstruction" placeholder="Tell me what to do" />
+      <select style="width: 75%" id="scribeMonsterAction">
+      <option value="edit">Edit the function</option>
+      <option value="complete">Complete the function from the first line</option>
+      <option value="explain">Explain the code</option>
+      </select>
         <button type="button" id="scribeMonsterFetchButton" class="btn">Submit</button>
       </div>
       </div>
@@ -154,20 +160,20 @@ function addButton(page) {
 function setProgressText() {
     let emojis = ['🤔', '📝', '🫤', '🧠', '💡', '📖', '📝', '😟', '😠', '🤬'];
     let index = 0;
-    let timer = setInterval(function () {
+    progressTimer = setInterval(function () {
         let listOfEmojis = emojis.filter((emoji, indexE) => {
             return indexE <= index}).join(' ');
-        document.getElementById('scribeMonsterMessage').innerHTML = listOfEmojis;
+        document.getElementById('scribeMonsterProgress').innerHTML = listOfEmojis;
         index++;
         if (index >= emojis.length) {
-            clearInterval(timer);
+            clearInterval(progressTimer);
         }
     }, 1000);
 
     setTimeout(function () {
         if (index < emojis.length) {
-            clearInterval(timer);
-            document.getElementById('scribeMonsterMessage').innerHTML = "I'm all ears!";
+            clearInterval(progressTimer);
+            document.getElementById('scribeMonsterProgress').innerHTML = "I'm all ears!";
             console.log('Error');
         }
     }, 10000);
@@ -178,10 +184,11 @@ function fetchScribeMonster(page) {
     chrome.storage.sync.get(['scribeMonsterAuth'], function (data) {
         let scribeMonsterAuth = data.scribeMonsterAuth;
         let instruction = document.getElementById('scribeMonsterInstruction').value;
+        let action = document.getElementById('scribeMonsterAction').value;
         let input = document.getElementById(page.scriptElement).value;
-        let model = "code-davinci-edit-001"
+        if(action === 'explain'){instruction="."}
         if (scribeMonsterAuth) {
-            let body = { instruction, input, model }
+            let body = { instruction, input, action }
             l({ body })
             const options = {
                 method: 'POST',
@@ -196,16 +203,22 @@ function fetchScribeMonster(page) {
                 .then(response => response.json())
                 .then(response => {
                     console.log({ response });
-                    document.getElementById('scribeMonsterModal').classList.add('hidden');
-                    document.getElementById('scribeMonsterOverlay').classList.add('hidden');
-                    document.getElementById(page.scriptElement).value = response.code;
-                    var codeInBase64 = window.btoa(response.code);
-                    var fieldToSet = page.scriptElement.split('.')[1];
-                    const newBtn = document.createElement("div");
-                    newBtn.innerHTML = `<button id="setValue" onClick="(()=>{g_form.setValue('${fieldToSet}',window.atob('${codeInBase64}'))})()"></button>`
-                    document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
-                    document.getElementById('setValue').click();
-                    document.getElementById('scribeMonsterOverlay').innerHTML = "";
+                    clearInterval(progressTimer);
+                    if(action != 'explain'){
+                        document.getElementById('scribeMonsterModal').classList.add('hidden');
+                        document.getElementById('scribeMonsterOverlay').classList.add('hidden');
+                        document.getElementById(page.scriptElement).value = response.code;
+                        var codeInBase64 = window.btoa(response.code);
+                        var fieldToSet = page.scriptElement.split('.')[1];
+                        const newBtn = document.createElement("div");
+                        newBtn.innerHTML = `<button id="setValue" onClick="(()=>{g_form.setValue('${fieldToSet}',window.atob('${codeInBase64}'))})()"></button>`
+                        document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
+                        document.getElementById('setValue').click();
+                        document.getElementById('scribeMonsterOverlay').innerHTML = "";
+                    }
+                    if(action == 'explain'){
+                        document.getElementById('scribeMonsterMessage').innerHTML = `1. ${response.code.split('\n').join('<br/>')}`
+                    }
                 })
                 .catch(err => console.error(err));
         }
@@ -216,6 +229,8 @@ function askForCode(scriptElement) {
         l({ script: document.getElementById(scriptElement.element)?.value })
         document.getElementById('scribeMonsterModal').classList.remove('hidden');
         document.getElementById('scribeMonsterOverlay').classList.remove('hidden');
+        document.getElementById('scribeMonsterMessage').innerHTML = "I'm here for you"
+        document.getElementById('scribeMonsterProgress').innerHTML = ""
     } catch (error) {
         l({ function: "askForCode", error })
     }
