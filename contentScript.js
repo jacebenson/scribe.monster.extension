@@ -185,14 +185,22 @@ function setProgressText() {
     }, 10000);
 }
 function setScript({page,code}){
-    document.getElementById(page.scriptElement).value = code;
-    var codeInBase64 = window.btoa(code.trim());
-    var fieldToSet = page.scriptElement.split('.')[1];
-    const newBtn = document.createElement("div");
-    newBtn.innerHTML = `<button id="setValue" onClick="(()=>{g_form.setValue('${fieldToSet}',window.atob('${codeInBase64}'))})()"></button>`
-    document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
-    document.getElementById('setValue').click();
-    document.getElementById('scribeMonsterOverlay').innerHTML = "";
+    let trimmedCode = code.trim();
+    if(trimmedCode){
+        document.getElementById(page.scriptElement).value = code;
+        var codeInBase64 = window.btoa(code.trim());
+        var fieldToSet = page.scriptElement.split('.')[1];
+        const newBtn = document.createElement("div");
+        newBtn.innerHTML = `<button id="setValue" onClick="(()=>{g_form.setValue('${fieldToSet}',window.atob('${codeInBase64}'))})()"></button>`
+        document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
+        document.getElementById('setValue').click();
+        document.getElementById('scribeMonsterOverlay').innerHTML = "";
+    }
+    if(!trimmedCode){
+        // no code empty value!
+        document.getElementById('scribeMonsterMessage').innerHTML = `Oh no, there was a problem with this prompt!`
+    }
+    
 }
 function fetchScribeMonster(page) {
     // look up these! auth,instruction,input
@@ -236,6 +244,10 @@ function fetchScribeMonster(page) {
                     }
                 })
                 .catch(err => console.error(err));
+        }
+        if (!scribeMonsterAuth) {
+            
+            document.getElementById('scribeMonsterMessage').innerHTML = `Oh no, you're not authenicated, goto https://scribe.monster and get a key.`
         }
     });
 }

@@ -1,7 +1,7 @@
 {
   "name": "ScribeMonster",
-  "version": "1.0.0",
-  "description": "Getting the ScribeMonster to help you make scripts",
+  "version": "1.0.2",
+  "description": "Generate scripts with OpenAI in ServiceNow",
   "permissions": ["storage"],
   "host_permissions": [
     "https://*.service-now.com/*",
