@@ -73,6 +73,11 @@ function addButton(page) {
             align-items: center;
             justify-content: space-between;
           }
+          #scribeMonsterModalBottom .flex {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+          }
       
           #scribeMonsterModal input {
             padding: 0.7rem 1rem;
@@ -133,18 +138,19 @@ function addButton(page) {
         <button id="scribeMonsterCloseBtn" onClick="(()=>{document.getElementById('scribeMonsterModal').classList.toggle('hidden');document.getElementById('scribeMonsterOverlay').classList.toggle('hidden');})()" type="button" class="btn-close">⨉</button>
         
       </div>
-      <div>
+      </div>
+      <div id="scribeMonsterModalBottom">
       <div id="scribeMonsterProgress"></div>
       <div id="scribeMonsterMessage">Give me some instructions!</div>
       <div id="scribeMonsterForm" class="flex">
-      <input style="width: 75%" id="scribeMonsterInstruction" placeholder="Tell me what to do" />
-      <select style="width: 75%" id="scribeMonsterAction">
+      <input style="width: 100%" id="scribeMonsterInstruction" placeholder="Tell me what to do" /><br/>
+      <select style="width: 100%" id="scribeMonsterAction">
       <option value="edit">Edit the function</option>
       <option value="complete">Complete the function from the first line</option>
       <option value="explain">Explain the code</option>
       </select>
-        <button type="button" id="scribeMonsterFetchButton" class="btn">Submit</button>
-      </div>
+      <br/>
+      <button type="button" id="scribeMonsterFetchButton" class="btn">Submit</button>
       </div>
       </section>
       <div id="scribeMonsterOverlay" class="hidden"></div>
@@ -178,6 +184,16 @@ function setProgressText() {
         }
     }, 10000);
 }
+function setScript({page,code}){
+    document.getElementById(page.scriptElement).value = code;
+    var codeInBase64 = window.btoa(code.trim());
+    var fieldToSet = page.scriptElement.split('.')[1];
+    const newBtn = document.createElement("div");
+    newBtn.innerHTML = `<button id="setValue" onClick="(()=>{g_form.setValue('${fieldToSet}',window.atob('${codeInBase64}'))})()"></button>`
+    document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
+    document.getElementById('setValue').click();
+    document.getElementById('scribeMonsterOverlay').innerHTML = "";
+}
 function fetchScribeMonster(page) {
     // look up these! auth,instruction,input
     l({ function: "fecthScribeMonster", script: document.getElementById(page.scriptElement) })
@@ -207,14 +223,13 @@ function fetchScribeMonster(page) {
                     if(action != 'explain'){
                         document.getElementById('scribeMonsterModal').classList.add('hidden');
                         document.getElementById('scribeMonsterOverlay').classList.add('hidden');
-                        document.getElementById(page.scriptElement).value = response.code;
-                        var codeInBase64 = window.btoa(response.code);
-                        var fieldToSet = page.scriptElement.split('.')[1];
-                        const newBtn = document.createElement("div");
-                        newBtn.innerHTML = `<button id="setValue" onClick="(()=>{g_form.setValue('${fieldToSet}',window.atob('${codeInBase64}'))})()"></button>`
-                        document.getElementById('scribeMonsterOverlay').appendChild(newBtn);
-                        document.getElementById('setValue').click();
-                        document.getElementById('scribeMonsterOverlay').innerHTML = "";
+                    }
+                    if(action == 'edit'){
+                        setScript({code: response.code, page})
+                    }
+                    if(action == 'complete'){
+                        var newCode = input.split('\n')[0] + response.code
+                        setScript({code: newCode, page})
                     }
                     if(action == 'explain'){
                         document.getElementById('scribeMonsterMessage').innerHTML = `1. ${response.code.split('\n').join('<br/>')}`
