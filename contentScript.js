@@ -168,7 +168,8 @@ function setProgressText() {
     let index = 0;
     progressTimer = setInterval(function () {
         let listOfEmojis = emojis.filter((emoji, indexE) => {
-            return indexE <= index}).join(' ');
+            return indexE <= index
+        }).join(' ');
         document.getElementById('scribeMonsterProgress').innerHTML = listOfEmojis;
         index++;
         if (index >= emojis.length) {
@@ -184,9 +185,9 @@ function setProgressText() {
         }
     }, 10000);
 }
-function setScript({page,code}){
+function setScript({ page, code }) {
     let trimmedCode = code.trim();
-    if(trimmedCode){
+    if (trimmedCode) {
         document.getElementById(page.scriptElement).value = code;
         var codeInBase64 = window.btoa(code.trim());
         var fieldToSet = page.scriptElement.split('.')[1];
@@ -196,11 +197,35 @@ function setScript({page,code}){
         document.getElementById('setValue').click();
         document.getElementById('scribeMonsterOverlay').innerHTML = "";
     }
-    if(!trimmedCode){
+    if (!trimmedCode) {
         // no code empty value!
         document.getElementById('scribeMonsterMessage').innerHTML = `Oh no, there was a problem with this prompt!`
     }
-    
+}
+function estimateTokens({ action, prompt, input }) {
+    //console.log({ function: 'estimateTokens', action, actionLength: action?.length, input, inputLength: input?.length, prompt, promptLength: prompt?.length })
+    let promptTokens = prompt / 3.75 || 0
+    let inputTokens = input / 3.75 || 0
+    let estimate = 0;
+    console.log({ message: 'precheck', action, promptTokens, inputTokens, isExplain: action === 'explain' })
+    if (action === 'edit') {
+        // return the rounded up value of 2*input + prompt
+        console.log({ action, promptTokens, inputTokens })
+        estimate = Math.ceil(2 * inputTokens + promptTokens)
+        return estimate
+    }
+    if (action === 'complete') {
+        // return the rounded up value of input[0] + prompt + 2000
+        console.log({ action, promptTokens, inputTokens })
+        estimate = Math.ceil(100/*est for line 1 of code */ + promptTokens + 2000)
+        return estimate
+    }
+    if (action === "explain") {
+        // return the rounded up value of prompt + 1000
+        console.log({ action, promptTokens, inputTokens })
+        estimate = Math.ceil(promptTokens + inputTokens + 1000)
+        return estimate
+    }
 }
 function fetchScribeMonster(page) {
     // look up these! auth,instruction,input
@@ -210,43 +235,55 @@ function fetchScribeMonster(page) {
         let instruction = document.getElementById('scribeMonsterInstruction').value;
         let action = document.getElementById('scribeMonsterAction').value;
         let input = document.getElementById(page.scriptElement).value;
-        if(action === 'explain'){instruction="."}
+        if (action === 'explain') { instruction = "." }
         if (scribeMonsterAuth) {
             let body = { instruction, input, action }
             l({ body })
-            const options = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': scribeMonsterAuth
-                },
-                body: JSON.stringify(body)
-            };
-            setProgressText();
-            fetch('https://scribe.monster/.redwood/functions/scribe', options)
-                .then(response => response.json())
-                .then(response => {
-                    console.log({ response });
-                    clearInterval(progressTimer);
-                    if(action != 'explain'){
-                        document.getElementById('scribeMonsterModal').classList.add('hidden');
-                        document.getElementById('scribeMonsterOverlay').classList.add('hidden');
-                    }
-                    if(action == 'edit'){
-                        setScript({code: response.code, page})
-                    }
-                    if(action == 'complete'){
-                        var newCode = input.split('\n')[0] + response.code
-                        setScript({code: newCode, page})
-                    }
-                    if(action == 'explain'){
-                        document.getElementById('scribeMonsterMessage').innerHTML = `1. ${response.code.split('\n').join('<br/>')}`
-                    }
-                })
-                .catch(err => console.error(err));
+            let estimate = estimateTokens({ action, prompt: instruction?.length, input:input?.length })
+            l({estimate, over4000: estimate > 4000, under4000: estimate<4000})
+            if (estimate > 4000) {
+                document.getElementById('scribeMonsterMessage').innerHTML = `Oh no, I think you'll be over the token allotment.`
+            }
+            if (estimate < 4000) {
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': scribeMonsterAuth
+                    },
+                    body: JSON.stringify(body)
+                };
+                setProgressText();
+                fetch('https://scribe.monster/.redwood/functions/scribe', options)
+                //fetch('http://localhost:8910/.redwood/functions/scribe', options)
+                    .then(response => response.json())
+                    .then(response => {
+                        console.log({ response });
+                        clearInterval(progressTimer);
+                        if (response?.raw?.error){
+                            document.getElementById('scribeMonsterMessage').innerHTML = `${response.raw.error.message}`
+                            return;
+                        }
+                        if (action != 'explain') {
+                            document.getElementById('scribeMonsterModal').classList.add('hidden');
+                            document.getElementById('scribeMonsterOverlay').classList.add('hidden');
+                        }
+                        if (action == 'edit') {
+                            setScript({ code: response.code, page })
+                        }
+                        if (action == 'complete') {
+                            var newCode = input.split('\n')[0] + response.code
+                            setScript({ code: newCode, page })
+                        }
+                        if (action == 'explain') {
+                            document.getElementById('scribeMonsterMessage').innerHTML = `1. ${response.code.split('\n').join('<br/>')}`
+                        }
+                    })
+                    .catch(err => console.error(err));
+            }
         }
         if (!scribeMonsterAuth) {
-            
+
             document.getElementById('scribeMonsterMessage').innerHTML = `Oh no, you're not authenicated, goto https://scribe.monster and get a key.`
         }
     });
@@ -281,6 +318,6 @@ window.addEventListener('load', function () {
 })
 
 function log(message) {
-    //console.log('scribeMonster', { ...message })
+    console.log('scribeMonster', { ...message })
 }
 let l = log
