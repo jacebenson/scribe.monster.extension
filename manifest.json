@@ -1,6 +1,6 @@
 {
   "name": "ScribeMonster",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Generate scripts with OpenAI in ServiceNow",
   "permissions": ["storage"],
   "host_permissions": [
