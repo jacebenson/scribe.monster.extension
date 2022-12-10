@@ -233,14 +233,16 @@ function fetchScribeMonster(page) {
     l({ function: "fecthScribeMonster", script: document.getElementById(page.scriptElement) })
     chrome.storage.sync.get(['scribeMonsterAuth'], function (data) {
         let scribeMonsterAuth = data.scribeMonsterAuth;
-        let instruction = document.getElementById('scribeMonsterInstruction').value;
-        let action = document.getElementById('scribeMonsterAction').value;
         let input = document.getElementById(page.scriptElement).value;
-        if (action === 'explain') { instruction = "." }
+        let prompt = document.getElementById('scribeMonsterInstruction').value;
+        let action = document.getElementById('scribeMonsterAction').value;
+        let table = page.scriptElement.split('.')[0];
+        let type = document.getElementById('sys_script_client.type').value || document.getElementById('catalog_script_client.type').value
+        if (action === 'explain') { prompt = "." }
         if (scribeMonsterAuth) {
-            let body = { instruction, input, action }
+            let body = { input, prompt, action, table, type }
             l({ body })
-            let estimate = estimateTokens({ action, prompt: instruction?.length, input:input?.length })
+            let estimate = estimateTokens({ action, prompt: prompt?.length, input:input?.length })
             l({estimate, over4000: estimate > 4000, under4000: estimate<4000})
             if (estimate > 4000) {
                 document.getElementById('scribeMonsterMessage').innerHTML = `Oh no, I think you'll be over the token allotment.`
@@ -255,8 +257,8 @@ function fetchScribeMonster(page) {
                     body: JSON.stringify(body)
                 };
                 setProgressText();
-                fetch('https://scribe.monster/.redwood/functions/scribe', options)
-                //fetch('http://localhost:8910/.redwood/functions/scribe', options)
+                //fetch('https://scribe.monster/.redwood/functions/scribe', options)
+                fetch('http://localhost:8910/.redwood/functions/scribe', options)
                     .then(response => response.json())
                     .then(response => {
                         console.log({ response });
@@ -273,7 +275,7 @@ function fetchScribeMonster(page) {
                             setScript({ code: response.code, page })
                         }
                         if (action == 'complete') {
-                            var newCode = input.split('\n')[0] + response.code
+                            var newCode = response.code
                             setScript({ code: newCode, page })
                         }
                         if (action == 'explain') {
