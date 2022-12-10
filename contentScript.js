@@ -37,6 +37,7 @@ function addButton(page) {
         const scribeMonsterImg = document.createElement("img");
         scribeMonsterImg.src = chrome.runtime.getURL("assets/scribeMonster.png");
         scribeMonsterImg.className = "btn btn-sm ";
+        scribeMonsterImg.setAttribute('style', 'max-width:100px');
         scribeMonsterImg.title = "Ask Stew to help write this!";
         newSpan.appendChild(scribeMonsterBtn);
         scribeMonsterBtn.appendChild(scribeMonsterImg);
