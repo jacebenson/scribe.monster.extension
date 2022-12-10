@@ -257,8 +257,8 @@ function fetchScribeMonster(page) {
                     body: JSON.stringify(body)
                 };
                 setProgressText();
-                //fetch('https://scribe.monster/.redwood/functions/scribe', options)
-                fetch('http://localhost:8910/.redwood/functions/scribe', options)
+                fetch('https://scribe.monster/.redwood/functions/scribe', options)
+                //fetch('http://localhost:8910/.redwood/functions/scribe', options)
                     .then(response => response.json())
                     .then(response => {
                         console.log({ response });
