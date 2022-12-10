@@ -237,7 +237,7 @@ function fetchScribeMonster(page) {
         let prompt = document.getElementById('scribeMonsterInstruction').value;
         let action = document.getElementById('scribeMonsterAction').value;
         let table = page.scriptElement.split('.')[0];
-        let type = document.getElementById('sys_script_client.type').value || document.getElementById('catalog_script_client.type').value
+        let type = document.getElementById('sys_script_client.type')?.value || document.getElementById('catalog_script_client.type')?.value
         if ((table === 'catalog_script_client' || table === 'sys_script_client') && type == undefined) {
             document.getElementById('scribeMonsterMessage').innerHTML = `You need to have the type on the client script set.`
             return;
