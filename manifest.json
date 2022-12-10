@@ -14,9 +14,9 @@
         "https://*.servicenowservices.com/*"
       ],
       "js": [
-        "/contentScripts/pagesToRunOn.js",
-        "/contentScripts/estimateTokens.js",
-        "/contentScripts/fetchScribeMonster.js",
+        "contentScripts/pagesToRunOn.js",
+        "contentScripts/estimateTokens.js",
+        "contentScripts/fetchScribeMonster.js",
         "contentScript.js"
       ],
       "all_frames": true,
