@@ -1,6 +1,6 @@
 {
   "name": "ScribeMonster",
-  "version": "1.0.7.34",
+  "version": "1.0.7.35",
   "description": "Generate scripts with OpenAI in ServiceNow",
   "permissions": ["storage"],
   "host_permissions": [
@@ -17,6 +17,7 @@
         "contentScripts/pagesToRunOn.js",
         "contentScripts/estimateTokens.js",
         "contentScripts/fetchScribeMonster.js",
+        "contentScripts/trainScribeMonster.js",
         "contentScript.js"
       ],
       "all_frames": true,

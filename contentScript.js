@@ -100,6 +100,9 @@ window.addEventListener('load', function () {
             addButton({ ...currentPageToRun })
             let modalFetchButton = document.getElementById("scribeMonsterFetchButton")
             modalFetchButton.addEventListener("click", function () { fetchScribeMonster({ ...currentPageToRun }) })
+
+            let modalTrainButton = document.getElementById("scribeMonsterTrainButton")
+            modalTrainButton.addEventListener("click", function () { trainScribeMonster({ ...currentPageToRun }) })
         });
     }
 })

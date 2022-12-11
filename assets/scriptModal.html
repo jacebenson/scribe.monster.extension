@@ -16,7 +16,8 @@
         <div class="flex">
             <style>
                 #scribeMonsterModal {
-                    width: 50%;
+                    min-width: 50%;
+                    max-width: 80%;
                     padding: 1.3rem;
                     position: absolute;
                     left: 50%;
@@ -166,10 +167,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group row">
-                            <!--<label for="scribeMonsterMessage" class="col-2 col-form-label">Message</label>
-                            <div class="col-10">
-                                <p id="scribeMonsterMessage" name="scribeMonsterMessage"></p>
-                            </div>-->
+                            <!--<details open id="scribeMonsterDetailsMessage" onClick="document.getElementById('scribeMonsterDetailsTraining').removeAttribute('open')">
+                                <summary>Stews Message to you</summary>
                             <figure>
                                 <blockquote class="blockquote">
                                     <p id="scribeMonsterMessage"></p>
@@ -178,6 +177,20 @@
                                     <span><img id="stewSignature" /></span>Stew the Scribe Monster
                                 </figcaption>
                             </figure>
+                            </details>-->
+                            <details id="scribeMonsterDetailsTraining" onClick="document.getElementById('scribeMonsterDetailsMessage').removeAttribute('open')">
+                                <summary>Send back good results here</summary>
+                                <p>This will send the same data used to generate the code below in addition to the below.</p>
+                                <div class="form-group row">
+                                <textarea id="scribeMonsterCompletion" name="textarea" cols="40" rows="5" class="form-control"></textarea>
+                                </div>
+                                <div class="form-group row">
+                                <button name="submit" type="button" id="scribeMonsterTrainButton"
+                                    class="btn btn-primary">Send Training Data
+                                </button>
+                                </div>
+                            </details>
+
                         </div>
 
                     </div>

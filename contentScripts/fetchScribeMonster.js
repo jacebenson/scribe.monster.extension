@@ -40,9 +40,11 @@ function fetchScribeMonster(page) {
                     },
                     body: JSON.stringify(body)
                 };
-                setProgressText();
-                fetch('https://scribe.monster/.redwood/functions/scribe', options)
-                //fetch('http://localhost:8910/.redwood/functions/scribe', options)
+                setProgressText();      
+                let domain = 'https://scribe.monster'
+                domain = 'http://localhost:8910'
+                let endpoint = `${domain}/.redwood/functions/scribe`
+                fetch(endpoint, options)
                     .then(response => response.json())
                     .then(response => {
                         //console.log({ response });
@@ -56,14 +58,17 @@ function fetchScribeMonster(page) {
                             document.getElementById('scribeMonsterOverlay').classList.add('hidden');
                         }
                         if (action == 'edit') {
+                            document.getElementById('scribeMonsterCompletion').value = response.code
                             setScript({ code: response.code, page })
                         }
                         if (action == 'complete') {
                             var newCode = response.code
+                            document.getElementById('scribeMonsterCompletion').value = newCode
                             setScript({ code: newCode, page })
                         }
                         if (action == 'explain') {
                             let explaination = `1. ${response.code.split('\n').join('<br/>')}`;
+                            document.getElementById('scribeMonsterCompletion').value = response.code
                             document.getElementById('scribeMonsterMessage').innerHTML = explaination
                         }
                     })
