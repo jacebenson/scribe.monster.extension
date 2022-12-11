@@ -4,16 +4,18 @@
 let progressTimer;
 function addButton(page) {
     try {
-        l({ function: 'addButton', page })
+        //log({ function: 'addButton', page })
         const newSpan = document.createElement("span");
         const scribeMonsterBtn = document.createElement("button");
-        scribeMonsterBtn.setAttribute("onClick", "console.log('ScribeMonster Button Click')");
         scribeMonsterBtn.setAttribute("type", "button");
         const scribeMonsterImg = document.createElement("img");
         scribeMonsterImg.src = chrome.runtime.getURL("assets/scribeMonster.png");
         scribeMonsterImg.className = "btn btn-sm ";
         scribeMonsterImg.setAttribute('style', 'max-width:100px');
         scribeMonsterImg.title = "Ask Stew to help write this!";
+        const stewSignature = document.getElementById('stewSignature');
+        stewSignature.src = chrome.runtime.getURL("assets/scribeMonster.png");
+        stewSignature.setAttribute('style', 'max-width: 15px')
         newSpan.appendChild(scribeMonsterBtn);
         scribeMonsterBtn.appendChild(scribeMonsterImg);
         scribeMonsterBtn.addEventListener("click", function () { askForCode({ element: page.scriptElement }) });
@@ -27,7 +29,7 @@ function addButton(page) {
         //body?.appendChild(newModal)
 
     } catch (error) {
-        l({ function: "addButton error", error })
+        log({ function: "addButton error", error })
     }
 }
 function setProgressText() {
@@ -45,10 +47,9 @@ function setProgressText() {
     }, 1000);
 
     setTimeout(function () {
-        if (index < emojis.length) {
+        if (index < emojis.length && index!=0) {
             clearInterval(progressTimer);
             document.getElementById('scribeMonsterProgress').innerHTML = "I'm all ears!";
-            console.log('Error');
         }
     }, 10000);
 }
@@ -73,13 +74,13 @@ function setScript({ page, code }) {
 
 function askForCode(scriptElement) {
     try {
-        l({ script: document.getElementById(scriptElement.element)?.value })
+        //log({ script: document.getElementById(scriptElement.element)?.value })
         document.getElementById('scribeMonsterModal').classList.remove('hidden');
         document.getElementById('scribeMonsterOverlay').classList.remove('hidden');
         //document.getElementById('scribeMonsterMessage').innerHTML = "I'm here for you"
         document.getElementById('scribeMonsterProgress').innerHTML = ""
     } catch (error) {
-        l({ function: "askForCode", error })
+        log({ function: "askForCode", error })
     }
 }
 
@@ -90,7 +91,7 @@ var currentPageToRun = pagesToRunOn.filter(function (page) {
     return pathMatches;
 })?.[0]
 window.addEventListener('load', function () {
-    l({ currentPageToRun });
+    //log({ currentPageToRun });
     if (currentPageToRun?.name) {
         fetch(chrome.runtime.getURL('/assets/scriptModal.html')).then(r => r.text()).then(html => {
             document.body.insertAdjacentHTML('beforeend', html);
@@ -106,4 +107,3 @@ window.addEventListener('load', function () {
 function log(message) {
     console.log('scribeMonster', { ...message })
 }
-let l = log

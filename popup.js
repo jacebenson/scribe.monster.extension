@@ -21,7 +21,7 @@ let updateKey = () => {
   fetch('https://scribe.monster/.redwood/functions/verifyKey', options)
     .then(response => response.json())
     .then(response => {
-      console.log({ response });
+      //console.log({ response });
 
       if (response?.message === 'success') {
         chrome.storage.sync.set({ scribeMonsterKey, scribeMonsterUser, scribeMonsterAuth }, () => {
@@ -42,7 +42,7 @@ let updateKey = () => {
           document.querySelector('#button-update').innerText = 'Try again';
         }, 1000);
       }
-    })
+    }).catch(error => console.error({function: 'fetch validate key', error}));
 }
 
 let scribeMonsterAuth = false;

@@ -1,6 +1,6 @@
 function fetchScribeMonster(page) {
     // look up these! auth,instruction,input
-    l({ function: "fecthScribeMonster", script: document.getElementById(page.scriptElement) })
+    //log({ function: "fecthScribeMonster", script: document.getElementById(page.scriptElement) })
     chrome.storage.sync.get(['scribeMonsterAuth'], function (data) {
         let scribeMonsterAuth = data.scribeMonsterAuth;
         let input = document.getElementById(page.scriptElement).value;
@@ -25,9 +25,9 @@ function fetchScribeMonster(page) {
         if (action === 'explain') { prompt = "." }
         if (scribeMonsterAuth) {
             let body = { input, prompt, action, table, type }
-            l({ body })
+            //log({ body })
             let estimate = estimateTokens({ action, prompt: prompt?.length, input:input?.length })
-            l({estimate, over4000: estimate > 4000, under4000: estimate<4000})
+            //log({estimate, over4000: estimate > 4000, under4000: estimate<4000})
             if (estimate > 4000) {
                 document.getElementById('scribeMonsterMessage').innerHTML = `Oh no, I think you'll be over the token allotment.`
             }
@@ -45,7 +45,7 @@ function fetchScribeMonster(page) {
                 //fetch('http://localhost:8910/.redwood/functions/scribe', options)
                     .then(response => response.json())
                     .then(response => {
-                        console.log({ response });
+                        //console.log({ response });
                         clearInterval(progressTimer);
                         if (response?.raw?.error){
                             document.getElementById('scribeMonsterMessage').innerHTML = `${response.raw.error.message}`
@@ -67,7 +67,7 @@ function fetchScribeMonster(page) {
                             document.getElementById('scribeMonsterMessage').innerHTML = explaination
                         }
                     })
-                    .catch(err => console.error(err));
+                    .catch(error => console.error({function: 'fetch',action, error}));
             }
         }
         if (!scribeMonsterAuth) {
