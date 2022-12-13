@@ -7,6 +7,17 @@ let updateDomain = () => {
     console.log('set domain')
   })
 }
+let loadAMA = () => {
+  chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
+    if(data?.scribeMonsterAMA) {
+      let questionsHTML = '';
+      data.scribeMonsterAMA.questions.forEach(function(QandA){
+        questionsHTML += `<details><summary>${QandA?.prompt?.prompt}</summary>${QandA?.prompt?.text}</details>`
+      })
+      document.querySelector('#history').innerHTML = `${questionsHTML}`
+    }
+  })
+}
 let saveAMA = (prompt, text) => {
   chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
     var AMA = {
@@ -19,21 +30,11 @@ let saveAMA = (prompt, text) => {
     AMA.questions.push({when: new Date(), prompt, text})
     chrome.storage.sync.set({ scribeMonsterAMA: AMA }, (data) => {
       console.log({function: 'history after set', data, AMA})
-        
+      loadAMA()        
     })
   })
 }
-let loadAMA = (() => {
-  chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
-    if(data?.scribeMonsterAMA) {
-      let questionsHTML = '';
-      data.scribeMonsterAMA.questions.forEach(function(QandA){
-        questionsHTML += `<details><summary>${QandA?.prompt?.prompt}</summary>${QandA?.prompt?.text}</details>`
-      })
-      document.querySelector('#history').innerHTML = questionsHTML
-    }
-  })
-})()
+
 let updateKey = () => {
   // set the chrome sync storage time to the 'select-time' value when 'button-save' is clicked
   let scribeMonsterKey = document.querySelector('#key').value;
@@ -135,6 +136,7 @@ function setValuesFromChromeStorage() {
 }
 // add event listener to 'button-save'
 setValuesFromChromeStorage();
+loadAMA();
 document.querySelector('#button-save').addEventListener('click', updateKey);
 document.querySelector('#button-ask-stew').addEventListener('click', askStew);
 document.querySelector('#domain').addEventListener('keyup', updateDomain);
