@@ -11,8 +11,14 @@ let loadAMA = () => {
   chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
     if(data?.scribeMonsterAMA) {
       let questionsHTML = '';
-      data.scribeMonsterAMA.questions.forEach(function(QandA){
-        questionsHTML += `<details><summary>${QandA?.prompt?.prompt}</summary>${QandA?.prompt?.text}</details>`
+      data.scribeMonsterAMA.questions.forEach(function(QandA, index){
+        let total = data.scribeMonsterAMA.questions.length;
+        let count = index+1;
+        if(count == total){
+          questionsHTML += `<details open="true"><summary>${count}/${total}: ${QandA?.prompt?.prompt}</summary>${QandA?.prompt?.text}</details>`  
+        } else {
+          questionsHTML += `<details><summary>${count}/${total}: ${QandA?.prompt?.prompt}</summary>${QandA?.prompt?.text}</details>`
+        }
       })
       document.querySelector('#history').innerHTML = `${questionsHTML}`
     }
@@ -128,9 +134,7 @@ function setValuesFromChromeStorage() {
     if (data.scribeMonsterDomain) {
       document.querySelector('#domain').value = data.scribeMonsterDomain
     } else {
-      chrome.storage.sync.get({scribeMonsterDomain: 'https://scribe.monster'}, function (data) {
-        document.querySelector('#domain').value = 'https://scribe.monster';
-      })
+      chrome.storage.sync.set({scribeMonsterDomain: 'https://scribe.monster'}, function (data) {})
     }
   });
 }
