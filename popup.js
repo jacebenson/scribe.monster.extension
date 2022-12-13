@@ -7,12 +7,29 @@ let updateDomain = () => {
     console.log('set domain')
   })
 }
+let saveAMA = (prompt, text) => {
+  chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
+    var AMA = {
+      questions: []
+    };
+    console.log({function: 'history before check', data, AMA})
+    if(data?.scribeMonsterAMA?.questions){
+      AMA.questions = data?.scribeMonsterAMA?.questions
+    }
+    AMA.questions.push({when: new Date(), prompt, response})
+    chrome.storage.sync.set({ scribeMonsterAMA: AMA }, (data) => {
+      console.log({function: 'history after set', data, AMA})
+        
+    })
+  })
+}
 let updateKey = () => {
   // set the chrome sync storage time to the 'select-time' value when 'button-save' is clicked
   let scribeMonsterKey = document.querySelector('#key').value;
   let scribeMonsterUser = document.querySelector('#user').value;
   let scribeMonsterAuth = getAuthString(scribeMonsterUser, scribeMonsterKey);
   chrome.storage.sync.get(['scribeMonsterDomain'], function (data) {
+    if(!data.scribeMonsterDomain) data.scribeMonsterDomain = 'https://scribe.monster'
     document.querySelector('#button-save').disabled = true;
     document.querySelector('#button-save').innerText = `Checking... ${data.scribeMonsterDomain}`;
     document.querySelector('#button-save').classList.remove('btn-danger')
@@ -42,11 +59,17 @@ let updateKey = () => {
             document.querySelector('#button-save').innerText = 'Try again';
           }, 1000);
         }
-      }).catch(error => console.error({ function: 'fetch validate key', error }));
+      }).catch(error => {
+        console.error({ function: 'fetch validate key', error })
+        document.querySelector('#button-save').disabled = false;
+        document.querySelector('#button-save').classList.toggle('btn-danger')
+        document.querySelector('#button-save').innerText = 'Fetch failed.';
+      });
   })
 }
 let askStew = () => {
   chrome.storage.sync.get(['scribeMonsterAuth', 'scribeMonsterDomain'], function (data) {
+    if(!data.scribeMonsterDomain) data.scribeMonsterDomain = 'https://scribe.monster'
     document.querySelector('#button-ask-stew').disabled = true;
     document.querySelector('#button-ask-stew').innerText = `Loading...`;
     document.querySelector('#button-ask-stew').classList.remove('btn-danger')
@@ -65,6 +88,7 @@ let askStew = () => {
       .then(response => {
         console.log({ response });
         if (response?.code) {
+          saveAMA({prompt: document.querySelector('#prompt').value, response: response.code})
           document.querySelector('#response').value = document.querySelector('#prompt').value + response.code;
           document.querySelector('#button-ask-stew').disabled = true;
           document.querySelector('#button-ask-stew').innerText = 'Wahoo!';
@@ -75,7 +99,12 @@ let askStew = () => {
         } else {
           document.querySelector('#response').value = 'There was a problem.  Sorry.'
         }
-      }).catch(error => console.error({ function: 'fetch validate key', error }));
+      }).catch(error => {
+        console.error({ function: 'fetch validate key', error })
+        document.querySelector('#button-ask-stew').disabled = false;
+        document.querySelector('#button-ask-stew').classList.toggle('btn-danger')
+        document.querySelector('#button-ask-stew').innerText = 'Fetch failed.';
+      });
   })
 }
 function setValuesFromChromeStorage() {
