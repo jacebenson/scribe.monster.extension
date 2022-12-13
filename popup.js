@@ -16,13 +16,24 @@ let saveAMA = (prompt, text) => {
     if(data?.scribeMonsterAMA?.questions){
       AMA.questions = data?.scribeMonsterAMA?.questions
     }
-    AMA.questions.push({when: new Date(), prompt, response})
+    AMA.questions.push({when: new Date(), prompt, text})
     chrome.storage.sync.set({ scribeMonsterAMA: AMA }, (data) => {
       console.log({function: 'history after set', data, AMA})
         
     })
   })
 }
+let loadAMA = (() => {
+  chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
+    if(data?.scribeMonsterAMA) {
+      let questionsHTML = '';
+      data.scribeMonsterAMA.questions.forEach(function(QandA){
+        questionsHTML += `<details><summary>${QandA?.prompt?.prompt}</summary>${QandA?.prompt?.text}</details>`
+      })
+      document.querySelector('#history').innerHTML = questionsHTML
+    }
+  })
+})()
 let updateKey = () => {
   // set the chrome sync storage time to the 'select-time' value when 'button-save' is clicked
   let scribeMonsterKey = document.querySelector('#key').value;
@@ -88,7 +99,7 @@ let askStew = () => {
       .then(response => {
         console.log({ response });
         if (response?.code) {
-          saveAMA({prompt: document.querySelector('#prompt').value, response: response.code})
+          saveAMA({prompt: document.querySelector('#prompt').value, text: response.code})
           document.querySelector('#response').value = document.querySelector('#prompt').value + response.code;
           document.querySelector('#button-ask-stew').disabled = true;
           document.querySelector('#button-ask-stew').innerText = 'Wahoo!';
