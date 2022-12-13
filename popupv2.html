@@ -15,7 +15,7 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab"
           aria-controls="home" aria-selected="true">
-          AMA
+          Home
         </button>
       </li>
       <li class="nav-item" role="presentation">
@@ -26,11 +26,8 @@
       </li>
     </ul>
     <div class="tab-content">
-      <!--AMA-->
+      <!--HOME-->
       <div class="tab-pane" id="home" role="tabpanel" aria-labelledby="home-tab">
-        <p class="text-center">
-          Ask me anything.
-        </p>
         <form>
           <div class="form-group row m-1">
             <label for="prompt" class="col-4 col-form-label">Prompt</label>
@@ -46,7 +43,7 @@
           </div>
           <div class="form-group row m-1">
             <div class="offset-4 col-8">
-              <button id="button-ask-stew" name="button-ask-stew" type="button" class="btn btn-primary">
+              <button id="popUpFetch" name="submit" type="button" class="btn btn-primary">
                 Ask Stew
               </button>
             </div>
@@ -78,14 +75,14 @@
             <div class="form-group row m-1">
               <label class="col-4 col-form-label" for="domain">Domain</label>
               <div class="col-8">
-                <input id="domain" name="domain" value="https://scribe.monster" placeholder="https://scribe.monster" type="text" class="form-control" />
+                <input id="domain" name="domain" placeholder="https://scribe.monster" type="text" class="form-control" />
               </div>
 
             </div>
           </details>
           <div class="form-group row m-1">
             <div class="offset-4 col-8">
-              <button type="button" name="button-save" id="button-save" class="btn btn-primary">
+              <button type="button" name="button-update" id="button-update" class="btn btn-primary">
                 Save
               </button>
             </div>

@@ -1,8 +1,8 @@
 function fetchScribeMonster(page) {
     // look up these! auth,instruction,input
     //log({ function: "fecthScribeMonster", script: document.getElementById(page.scriptElement) })
-    chrome.storage.sync.get(['scribeMonsterAuth'], function (data) {
-        let scribeMonsterAuth = data.scribeMonsterAuth;
+    chrome.storage.sync.get(['scribeMonsterAuth', 'scribeMonsterDomain'], function (data) {
+        console.log({data})
         let input = document.getElementById(page.scriptElement).value;
         let prompt = document.getElementById('scribeMonsterInstruction').value;
         let action = (()=>{
@@ -23,7 +23,7 @@ function fetchScribeMonster(page) {
             return;
         }
         if (action === 'explain') { prompt = "." }
-        if (scribeMonsterAuth) {
+        if (data.scribeMonsterAuth) {
             let body = { input, prompt, action, table, type }
             //log({ body })
             let estimate = estimateTokens({ action, prompt: prompt?.length, input:input?.length })
@@ -36,14 +36,12 @@ function fetchScribeMonster(page) {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': scribeMonsterAuth
+                        'Authorization': data.scribeMonsterAuth
                     },
                     body: JSON.stringify(body)
                 };
-                setProgressText();      
-                let domain = 'https://scribe.monster'
-                domain = 'http://localhost:8910'
-                let endpoint = `${domain}/.redwood/functions/scribe`
+                setProgressText();
+                let endpoint = `${data.scribeMonsterDomain}/.redwood/functions/scribe`
                 fetch(endpoint, options)
                     .then(response => response.json())
                     .then(response => {
@@ -75,7 +73,7 @@ function fetchScribeMonster(page) {
                     .catch(error => console.error({function: 'fetch',action, error}));
             }
         }
-        if (!scribeMonsterAuth) {
+        if (!data.scribeMonsterAuth) {
 
             document.getElementById('scribeMonsterMessage').innerHTML = `Oh no, you're not authenicated, goto https://scribe.monster and get a key.`
         }

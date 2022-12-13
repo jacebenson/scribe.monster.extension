@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <section id="scribeMonsterModal" class="hidden">
+    <section id="scribeMonsterModal" class="hidden" style="display:hidden">
         <div class="flex">
             <style>
                 #scribeMonsterModal {
@@ -85,6 +85,10 @@
                     border-radius: 50%;
                 }
 
+                .hidden {
+                    display: none !important;
+                }
+
                 #scribeMonsterOverlay {
                     position: fixed;
                     top: 0;
@@ -98,13 +102,11 @@
                     z-index: 10;
                 }
             </style>
-
             <h3>Help me help you!</h3>
             <button id="scribeMonsterCloseBtn"
                 onClick="(()=>{document.getElementById('scribeMonsterModal').classList.toggle('hidden');document.getElementById('scribeMonsterOverlay').classList.toggle('hidden');})()"
-                type="button" class="btn-close">⨉</button>
-
-        </div>
+                type="button" class="btn-close">⨉
+            </button>
         </div>
         <div id="scribeMonsterModalBottom">
             <div class="modal-body">
@@ -119,9 +121,9 @@
                                     <div class="custom-control custom-radio">
                                         <input name="scribeMonsterAction" id="scribeMonsterAction-complete" type="radio"
                                             required="required" class="custom-control-input" value="complete">
-                                        <label for="scribeMonsterAction-complete" class="custom-control-label">Write a
-                                            new script
-                                            using the prompt</label>
+                                        <label for="scribeMonsterAction-complete" class="custom-control-label">
+                                            Write a new script using the prompt
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="custom-controls-stacked"
@@ -129,9 +131,9 @@
                                     <div class="custom-control custom-radio">
                                         <input name="scribeMonsterAction" id="scribeMonsterAction-edit" type="radio"
                                             required="required" class="custom-control-input" value="edit">
-                                        <label for="scribeMonsterAction-edit" class="custom-control-label">Edit the
-                                            script based on
-                                            the prompt</label>
+                                        <label for="scribeMonsterAction-edit" class="custom-control-label">
+                                            Edit the script based on the prompt
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="custom-controls-stacked"
@@ -139,9 +141,9 @@
                                     <div class="custom-control custom-radio">
                                         <input name="scribeMonsterAction" id="scribeMonsterAction-explain" type="radio"
                                             required="required" class="custom-control-input" value="explain">
-                                        <label for="scribeMonsterAction-explain" class="custom-control-label">Explain
-                                            the
-                                            script</label>
+                                        <label for="scribeMonsterAction-explain" class="custom-control-label">
+                                            Explain the script
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -167,30 +169,33 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group row">
-                            <details open id="scribeMonsterDetailsMessage" onClick="document.getElementById('scribeMonsterDetailsTraining').removeAttribute('open')">
+                            <details open id="scribeMonsterDetailsMessage" >
+                                <!--onClick="document.getElementById('scribeMonsterDetailsTraining').removeAttribute('open')"-->
                                 <summary>Stews Message to you</summary>
-                            <figure>
-                                <blockquote class="blockquote">
-                                    <p id="scribeMonsterMessage"></p>
-                                </blockquote>
-                                <figcaption class="blockquote-footer">
-                                    <span><img id="stewSignature" /></span>Stew the Scribe Monster
-                                </figcaption>
-                            </figure>
+                                <figure>
+                                    <blockquote class="blockquote">
+                                        <p id="scribeMonsterMessage"></p>
+                                    </blockquote>
+                                    <figcaption class="blockquote-footer">
+                                        <span><img id="stewSignature" /></span>Stew the Scribe Monster
+                                    </figcaption>
+                                </figure>
                             </details>
-                            <details class="d-none" style="display:none;" id="scribeMonsterDetailsTraining" onClick="document.getElementById('scribeMonsterDetailsMessage').removeAttribute('open')">
+                            <details class="d-none hidden" id="scribeMonsterDetailsTraining"
+                                onClick="document.getElementById('scribeMonsterDetailsMessage').removeAttribute('open')">
                                 <summary>Send back good results here</summary>
-                                <p>This will send the same data used to generate the code below in addition to the below.</p>
+                                <p>This will send the same data used to generate the code below in addition to the
+                                    below.</p>
                                 <div class="form-group row">
-                                <textarea id="scribeMonsterCompletion" name="textarea" cols="40" rows="5" class="form-control"></textarea>
+                                    <textarea id="scribeMonsterCompletion" name="textarea" cols="40" rows="5"
+                                        class="form-control"></textarea>
                                 </div>
                                 <div class="form-group row">
-                                <button name="submit" type="button" id="scribeMonsterTrainButton"
-                                    class="btn btn-primary">Send Training Data
-                                </button>
+                                    <button name="submit" type="button" id="scribeMonsterTrainButton"
+                                        class="btn btn-primary">Send Training Data
+                                    </button>
                                 </div>
                             </details>
-
                         </div>
 
                     </div>
@@ -200,7 +205,7 @@
 
 
     </section>
-    <div id="scribeMonsterOverlay" class="hidden"></div>
+    <div id="scribeMonsterOverlay" class="hidden" stlye="display:hidden;"></div>
     </div>
 
 </body>

@@ -13,9 +13,9 @@ function addButton(page) {
         scribeMonsterImg.className = "btn btn-sm ";
         scribeMonsterImg.setAttribute('style', 'max-width:100px');
         scribeMonsterImg.title = "Ask Stew to help write this!";
-        const stewSignature = document.getElementById('stewSignature');
-        stewSignature.src = chrome.runtime.getURL("assets/scribeMonster.png");
-        stewSignature.setAttribute('style', 'max-width: 15px')
+        //const stewSignature = document.getElementById('stewSignature');
+        //stewSignature.src = chrome.runtime.getURL("assets/scribeMonster.png");
+        //stewSignature.setAttribute('style', 'max-width: 15px')
         newSpan.appendChild(scribeMonsterBtn);
         scribeMonsterBtn.appendChild(scribeMonsterImg);
         scribeMonsterBtn.addEventListener("click", function () { askForCode({ element: page.scriptElement }) });
