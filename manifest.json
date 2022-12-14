@@ -28,7 +28,8 @@
     {
       "resources": [
         "assets/scribeMonster.png",
-        "assets/scriptModal.html"
+        "assets/scriptModal.html",
+        "popup.html"
       ],
       "matches": [
         "https://*.service-now.com/*",

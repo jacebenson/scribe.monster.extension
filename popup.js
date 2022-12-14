@@ -3,24 +3,50 @@ let getAuthString = (user, key) => {
 }
 let updateDomain = () => {
   let scribeMonsterDomain = document.querySelector('#domain').value
+  if(scribeMonsterDomain == '') return;
   chrome.storage.sync.set({ scribeMonsterDomain }, () => {
-    console.log('set domain')
+    console.log('set domain', scribeMonsterDomain);
   })
 }
 let loadAMA = () => {
   chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
     if(data?.scribeMonsterAMA) {
-      let questionsHTML = '';
+      document.querySelector('#history').innerHTML = '';
+      let questionsHTML = document.querySelector('#history');
       data.scribeMonsterAMA.questions.forEach(function(QandA, index){
         let total = data.scribeMonsterAMA.questions.length;
         let count = index+1;
-        if(count == total){
-          questionsHTML += `<details open="true"><summary>${count}/${total}: ${QandA?.prompt?.prompt}</summary>${QandA?.prompt?.text}</details>`  
-        } else {
-          questionsHTML += `<details><summary>${count}/${total}: ${QandA?.prompt?.prompt}</summary>${QandA?.prompt?.text}</details>`
-        }
+        var newDiv=document.createElement('div')
+        newDiv.setAttribute('class', 'd-inline-flex mb-1')
+        var newDetails=document.createElement('details')
+        newDetails.setAttribute('id',`history-${index}`)
+        if(count == total){newDetails.setAttribute('open',true);}
+        var newSummary=document.createElement('summary')
+        newSummary.innerText=`${count}/${total}: ${QandA?.prompt?.prompt}`;
+        newDetails.appendChild(newSummary);
+        var newContent=document.createElement('span')
+        //newContent.setAttribute('display-inline')
+        newContent.innerText=`${QandA?.prompt?.text}`;
+        newDetails.appendChild(newContent);
+        var deleteButton=document.createElement('button');
+        deleteButton.setAttribute('class', 'btn btn-danger m-3')
+        deleteButton.addEventListener('click', ()=>{
+          console.log({question: data.scribeMonsterAMA.questions, index});
+          let filtered = data.scribeMonsterAMA.questions.filter((item,itemIndex)=>{
+            console.log({item, itemIndex, index})
+            if(itemIndex == index) return false;
+            return true;
+          })
+          console.log({filtered})
+          chrome.storage.sync.set({scribeMonsterAMA: {questions: [...filtered]}}, function(){
+            loadAMA()
+          })
+        });
+        deleteButton.innerText='X';
+        newDiv.appendChild(deleteButton)
+        newDiv.appendChild(newDetails)
+        document.querySelector('#history').appendChild(newDiv)
       })
-      document.querySelector('#history').innerHTML = `${questionsHTML}`
     }
   })
 }
@@ -35,6 +61,17 @@ let saveAMA = (prompt, text) => {
     }
     AMA.questions.push({when: new Date(), prompt, text})
     chrome.storage.sync.set({ scribeMonsterAMA: AMA }, (data) => {
+      console.log({function: 'history after set', data, AMA})
+      loadAMA()        
+    })
+  })
+}
+let removeOneAMA = (id)=>{
+  chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
+    let filteredAMA = data.scribeMonsterAMA.questions.filter(function(QandA, index){
+      return index !== id
+    })
+    chrome.storage.sync.set({ scribeMonsterAMA: {questions: [...filteredAMA]} }, (data) => {
       console.log({function: 'history after set', data, AMA})
       loadAMA()        
     })
@@ -138,9 +175,16 @@ function setValuesFromChromeStorage() {
     }
   });
 }
+let popout = async function() {
+  window.open("popup.html", "popupWindow", "width=500,height=600");
+} 
+let hidePopoutButton = ()=>{
+  document.querySelector('#button-pop-out').classList.toggle('d-none');
+}
 // add event listener to 'button-save'
 setValuesFromChromeStorage();
 loadAMA();
 document.querySelector('#button-save').addEventListener('click', updateKey);
 document.querySelector('#button-ask-stew').addEventListener('click', askStew);
 document.querySelector('#domain').addEventListener('keyup', updateDomain);
+document.querySelector('#button-pop-out').addEventListener('click', popout)
