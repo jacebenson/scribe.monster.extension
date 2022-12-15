@@ -11,25 +11,28 @@ let updateDomain = () => {
 let loadAMA = () => {
   chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
     if(data?.scribeMonsterAMA) {
-      document.querySelector('#history').innerHTML = '';
+      //document.querySelector('#history').innerHTML = '';
       let questionsHTML = document.querySelector('#history');
-      data.scribeMonsterAMA.questions.forEach(function(QandA, index){
+      questionsHTML.classList.remove('d-none')
+      let historyTableBody = document.querySelector('#history-table-body')
+      historyTableBody.innerHTML = '';
+      /**
+       *               <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+              </tr>
+
+       */
+      let reversedArray = data.scribeMonsterAMA.questions.reverse();
+      reversedArray.forEach(function(QandA, index){
         let total = data.scribeMonsterAMA.questions.length;
         let count = index+1;
-        var newDiv=document.createElement('div')
-        newDiv.setAttribute('class', 'd-inline-flex mb-1')
-        var newDetails=document.createElement('details')
-        newDetails.setAttribute('id',`history-${index}`)
-        if(count == total){newDetails.setAttribute('open',true);}
-        var newSummary=document.createElement('summary')
-        newSummary.innerText=`${count}/${total}: ${QandA?.prompt?.prompt}`;
-        newDetails.appendChild(newSummary);
-        var newContent=document.createElement('span')
-        //newContent.setAttribute('display-inline')
-        newContent.innerText=`${QandA?.prompt?.text}`;
-        newDetails.appendChild(newContent);
+        var newRow = document.createElement('tr');
+        var newRowHeader = document.createElement('th');
+        newRowHeader.setAttribute('scope', 'row')
+        
         var deleteButton=document.createElement('button');
-        deleteButton.setAttribute('class', 'btn btn-danger m-3')
+        deleteButton.setAttribute('class', 'btn btn-danger')
         deleteButton.addEventListener('click', ()=>{
           console.log({question: data.scribeMonsterAMA.questions, index});
           let filtered = data.scribeMonsterAMA.questions.filter((item,itemIndex)=>{
@@ -43,9 +46,29 @@ let loadAMA = () => {
           })
         });
         deleteButton.innerText='X';
-        newDiv.appendChild(deleteButton)
-        newDiv.appendChild(newDetails)
-        document.querySelector('#history').appendChild(newDiv)
+        newRowHeader.appendChild(deleteButton)
+
+        var newRowContent = document.createElement('td');
+        
+        var newDetails=document.createElement('details')
+        if(count == 1){newDetails.setAttribute('open',true);}
+        var newSummary=document.createElement('summary')
+        let prompt = QandA?.prompt?.prompt;
+        let promptSummary = QandA?.prompt?.prompt.replace('\n','');
+        if(prompt.length > 37) promptSummary = `${promptSummary.substr(0,37)}...`
+        newSummary.innerText=`${promptSummary}`;
+        newDetails.appendChild(newSummary);
+        var newContent=document.createElement('span')
+        let savedResponse = QandA?.prompt?.text;
+        if(prompt.length > 17) savedResponse = `${prompt}
+        ${savedResponse}`
+        newContent.innerText=`${savedResponse}`;
+        newDetails.appendChild(newContent);
+        newRowContent.appendChild(newDetails)
+        newRow.appendChild(newRowHeader)
+        newRow.appendChild(newRowContent)
+        historyTableBody.appendChild(newRow);
+        //document.querySelector('#history').appendChild(newRow)
       })
     }
   })

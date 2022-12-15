@@ -1,106 +1,194 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Scibe Monster</title>
+    <!-- CSS only -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+  </head>
 
-<head>
-  <title>Scibe Monster</title>
-  <!-- CSS only -->
-  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
-</head>
-
-<body>
-  <div class="container mt-3" style="width: 450px">
-    <h2 class="text-center">Scribe Monster</h2>
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab"
-          aria-controls="home" aria-selected="true">
-          AMA
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button"
-          role="tab" aria-controls="settings" aria-selected="false">
-          Settings
-        </button>
-      </li>
-    </ul>
-    <div class="tab-content">
-      <!--AMA-->
-      <div class="tab-pane" id="home" role="tabpanel" aria-labelledby="home-tab">
-        <p class="text-center">
-          Ask me anything.
-        </p>
-        <form>
-          <div class="form-group row m-1">
-            <!--<label for="prompt" class="col-4 col-form-label">Prompt</label>-->
-            <div class="col-12">
-              <textarea id="prompt" name="prompt" cols="40" rows="2" class="form-control"></textarea>
-            </div>
-          </div>
-          <div class="form-group row m-1 d-none">
-            <label for="response" class="col-4 col-form-label">Response</label>
-            <div class="col-8">
-              <textarea id="response" name="response" cols="40" rows="5" class="form-control"></textarea>
-            </div>
-          </div>
-          <div class="form-group row m-1">
-            <div class="offset-4 col-8">
-              <button id="button-ask-stew" name="button-ask-stew" type="button" class="btn btn-primary">
-                Ask Stew
-              </button>
-            </div>
-          </div>
-        </form>
-        <div id="history"></div>
-      </div>
-      <!-- SETTINGS -->
-      <div class="tab-pane active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-        <p class="text-center">
-          Need an account? Create one here: https://scribe.monster
-        </p>
-        <form>
-          <div class="form-group row m-1"><!--username-->
-            <label class="col-4 col-form-label" for="user">Username</label>
-            <div class="col-8">
-              <input id="user" name="user" placeholder="myusername" type="text" class="form-control"
-                required="required" />
-            </div>
-          </div>
-          <div class="form-group row m-1"><!--key-->
-            <label for="key" class="col-4 col-form-label">Key</label>
-            <div class="col-8">
-              <input id="key" name="key" placeholder="from scribe.monster" type="password" class="form-control"
-                required="required" />
-            </div>
-          </div>
-          <details><!--advanced-->
-            <summary>Advanced Settings</summary>
+  <body>
+    <div class="container mt-3" style="width: 450px">
+      <h2 class="text-center">Scribe Monster</h2>
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="home-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#home"
+            type="button"
+            role="tab"
+            aria-controls="home"
+            aria-selected="true"
+          >
+            AMA
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="settings-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#settings"
+            type="button"
+            role="tab"
+            aria-controls="settings"
+            aria-selected="false"
+          >
+            Settings
+          </button>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <!--AMA-->
+        <div
+          class="tab-pane"
+          id="home"
+          role="tabpanel"
+          aria-labelledby="home-tab"
+        >
+          <p class="text-center">Ask me anything.</p>
+          <form>
             <div class="form-group row m-1">
-              <label class="col-4 col-form-label" for="domain">Domain</label>
-              <div class="col-8">
-                <input id="domain" name="domain" value="https://scribe.monster" placeholder="https://scribe.monster" type="text" class="form-control" />
+              <!--<label for="prompt" class="col-4 col-form-label">Prompt</label>-->
+              <div class="col-12">
+                <textarea
+                  id="prompt"
+                  name="prompt"
+                  cols="40"
+                  rows="2"
+                  class="form-control"
+                ></textarea>
               </div>
-              <label class="col-4 col-form-label" for="domain">Open in a </label>
+            </div>
+            <div class="form-group row m-1 d-none">
+              <label for="response" class="col-4 col-form-label"
+                >Response</label
+              >
               <div class="col-8">
-              <a href="#" id="button-pop-out" name="button-pop-out" class="link">
-                Popout
-              </a>            
+                <textarea
+                  id="response"
+                  name="response"
+                  cols="40"
+                  rows="5"
+                  class="form-control"
+                ></textarea>
+              </div>
             </div>
+            <div class="form-group row m-1">
+              <div class="offset-4 col-8">
+                <button
+                  id="button-ask-stew"
+                  name="button-ask-stew"
+                  type="button"
+                  class="btn btn-primary"
+                >
+                  Ask Stew
+                </button>
+              </div>
             </div>
-          </details>
-          <div class="form-group row m-1">
-            <div class="offset-4 col-8">
-              <button type="button" name="button-save" id="button-save" class="btn btn-primary">
-                Save
-              </button>
+          </form>
+          <table id="history" class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Q+A</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr>
+                <td>??</td>
+                <td>??</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- SETTINGS -->
+        <div
+          class="tab-pane active"
+          id="settings"
+          role="tabpanel"
+          aria-labelledby="settings-tab"
+        >
+          <p class="text-center">
+            Need an account? Create one here: https://scribe.monster
+          </p>
+          <form>
+            <div class="form-group row m-1">
+              <!--username-->
+              <label class="col-4 col-form-label" for="user">Username</label>
+              <div class="col-8">
+                <input
+                  id="user"
+                  name="user"
+                  placeholder="myusername"
+                  type="text"
+                  class="form-control"
+                  required="required"
+                />
+              </div>
             </div>
-          </div>
-        </form>
+            <div class="form-group row m-1">
+              <!--key-->
+              <label for="key" class="col-4 col-form-label">Key</label>
+              <div class="col-8">
+                <input
+                  id="key"
+                  name="key"
+                  placeholder="from scribe.monster"
+                  type="password"
+                  class="form-control"
+                  required="required"
+                />
+              </div>
+            </div>
+            <details>
+              <!--advanced-->
+              <summary>Advanced Settings</summary>
+              <div class="form-group row m-1">
+                <label class="col-4 col-form-label" for="domain">Domain</label>
+                <div class="col-8">
+                  <input
+                    id="domain"
+                    name="domain"
+                    value="https://scribe.monster"
+                    placeholder="https://scribe.monster"
+                    type="text"
+                    class="form-control"
+                  />
+                </div>
+                <label class="col-4 col-form-label" for="domain"
+                  >Open in a
+                </label>
+                <div class="col-8">
+                  <a
+                    href="#"
+                    id="button-pop-out"
+                    name="button-pop-out"
+                    class="link"
+                  >
+                    Popout
+                  </a>
+                </div>
+              </div>
+            </details>
+            <div class="form-group row m-1">
+              <div class="offset-4 col-8">
+                <button
+                  type="button"
+                  name="button-save"
+                  id="button-save"
+                  class="btn btn-primary"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-  <script src="popup.js"></script>
-</body>
-
+    <script src="popup.js"></script>
+  </body>
 </html>
