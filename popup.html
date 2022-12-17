@@ -129,6 +129,19 @@
           <p class="text-center">Let me summarize the current page</p>
           <form>
             <div class="form-group row m-1">
+              <!--ask how aggessive should we summaizer, a little, some, a lot-->
+              <label for="summarize-level" class="col-4 col-form-label"
+                >Aggressiveness</label
+              >
+              <div class="col-8">
+                <select id="summarize-level" class="form-select">
+                  <option selected value="1">A little</option>
+                  <option value="2">Some</option>
+                  <option value="3">A lot</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row m-1">
               <!--<label for="prompt" class="col-4 col-form-label">Prompt</label>-->
               <div class="col-12">
                 <textarea

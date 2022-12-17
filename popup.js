@@ -5,7 +5,7 @@ let updateDomain = () => {
   let scribeMonsterDomain = document.querySelector('#domain').value
   if(scribeMonsterDomain == '') return;
   chrome.storage.sync.set({ scribeMonsterDomain }, () => {
-    console.log('set domain', scribeMonsterDomain);
+    //console.log('set domain', scribeMonsterDomain);
   })
 }
 let loadAMA = () => {
@@ -34,13 +34,13 @@ let loadAMA = () => {
         var deleteButton=document.createElement('button');
         deleteButton.setAttribute('class', 'btn btn-danger')
         deleteButton.addEventListener('click', ()=>{
-          console.log({question: data.scribeMonsterAMA.questions, index});
+          //console.log({question: data.scribeMonsterAMA.questions, index});
           let filtered = data.scribeMonsterAMA.questions.filter((item,itemIndex)=>{
-            console.log({item, itemIndex, index})
+            //console.log({item, itemIndex, index})
             if(itemIndex == index) return false;
             return true;
           })
-          console.log({filtered})
+          //console.log({filtered})
           chrome.storage.sync.set({scribeMonsterAMA: {questions: [...filtered]}}, function(){
             loadAMA()
           })
@@ -78,13 +78,13 @@ let saveAMA = (prompt, text) => {
     var AMA = {
       questions: []
     };
-    console.log({function: 'history before check', data, AMA})
+    //console.log({function: 'history before check', data, AMA})
     if(data?.scribeMonsterAMA?.questions){
       AMA.questions = data?.scribeMonsterAMA?.questions
     }
     AMA.questions.push({when: new Date(), prompt, text})
     chrome.storage.sync.set({ scribeMonsterAMA: AMA }, (data) => {
-      console.log({function: 'history after set', data, AMA})
+      //console.log({function: 'history after set', data, AMA})
       loadAMA()        
     })
   })
@@ -164,7 +164,7 @@ let askStew = () => {
     })
       .then(response => response.json())
       .then(response => {
-        console.log({ response });
+        //console.log({ response });
         if (response?.code) {
           saveAMA({prompt: document.querySelector('#prompt').value, text: response.code})
           document.querySelector('#response').value = document.querySelector('#prompt').value + response.code;
@@ -210,7 +210,8 @@ let summarize = async function() {
 
   chrome.storage.sync.get(['scribeMonsterAuth', 'scribeMonsterDomain'], function (data) {
     // content from the text area
-    let textToSummarize = document.querySelector('#summarize-text').value;    
+    let howToSummarize = document.querySelector('#summarize-level').value;
+    let textToSummarize = document.querySelector('#summarize-text').value;
     if(!data.scribeMonsterDomain) data.scribeMonsterDomain = 'https://scribe.monster'
     document.querySelector('#button-summarize').disabled = true;
     document.querySelector('#button-summarize').innerText = `Loading...`;
@@ -222,13 +223,13 @@ let summarize = async function() {
         'Authorization': data.scribeMonsterAuth
       },
       body: JSON.stringify({
-        action: 'summarize',
+        action: 'summarize-' + howToSummarize,
         prompt: textToSummarize
       })
     })
       .then(response => response.json())
       .then(response => {
-        console.log({ response });
+        //console.log({ response });
         if (response?.code) {
           //saveSummary({prompt: document.querySelector('#prompt').value, text: response.code})
           document.querySelector('#summarize-response').innerText = response.code;
