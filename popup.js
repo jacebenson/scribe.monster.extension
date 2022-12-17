@@ -204,10 +204,57 @@ let popout = async function() {
 let hidePopoutButton = ()=>{
   document.querySelector('#button-pop-out').classList.toggle('d-none');
 }
+let saveSummary = async function() {
+}
+let summarize = async function() {
+
+  chrome.storage.sync.get(['scribeMonsterAuth', 'scribeMonsterDomain'], function (data) {
+    // content from the text area
+    let textToSummarize = document.querySelector('#summarize-text').value;    
+    if(!data.scribeMonsterDomain) data.scribeMonsterDomain = 'https://scribe.monster'
+    document.querySelector('#button-summarize').disabled = true;
+    document.querySelector('#button-summarize').innerText = `Loading...`;
+    document.querySelector('#button-summarize').classList.remove('btn-danger')
+    fetch(`${data.scribeMonsterDomain}/.redwood/functions/scribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': data.scribeMonsterAuth
+      },
+      body: JSON.stringify({
+        action: 'summarize',
+        prompt: textToSummarize
+      })
+    })
+      .then(response => response.json())
+      .then(response => {
+        console.log({ response });
+        if (response?.code) {
+          //saveSummary({prompt: document.querySelector('#prompt').value, text: response.code})
+          document.querySelector('#summarize-response').innerText = response.code;
+          document.querySelector('#button-summarize').disabled = true;
+          document.querySelector('#button-summarize').innerText = 'Wahoo!';
+          setTimeout(() => {
+            document.querySelector('#button-summarize').disabled = false;
+            document.querySelector('#button-summarize').innerText = 'Summarize!';
+          }, 1000);
+        } else {
+          document.querySelector('#summarize-response').value = 'There was a problem.  Sorry.'
+        }
+      }).catch(error => {
+        console.error({ function: 'fetch validate key', error })
+        document.querySelector('#button-summarize').disabled = false;
+        document.querySelector('#button-summarize').classList.toggle('btn-danger')
+        document.querySelector('#button-summarize').innerText = 'Fetch failed.';
+      });
+  })
+}
+
 // add event listener to 'button-save'
 setValuesFromChromeStorage();
 loadAMA();
 document.querySelector('#button-save').addEventListener('click', updateKey);
 document.querySelector('#button-ask-stew').addEventListener('click', askStew);
+document.querySelector('#button-summarize').addEventListener('click', summarize);
 document.querySelector('#domain').addEventListener('keyup', updateDomain);
 document.querySelector('#button-pop-out').addEventListener('click', popout)

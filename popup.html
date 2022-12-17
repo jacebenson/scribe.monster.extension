@@ -13,7 +13,7 @@
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
           <button
-            class="nav-link"
+            class="nav-link active"
             id="home-tab"
             data-bs-toggle="tab"
             data-bs-target="#home"
@@ -27,7 +27,22 @@
         </li>
         <li class="nav-item" role="presentation">
           <button
-            class="nav-link active"
+            class="nav-link"
+            id="summary-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#summary"
+            type="button"
+            role="tab"
+            aria-controls="summary"
+            aria-selected="false"
+          >
+            Summary
+          </button>
+        </li>
+
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
             id="settings-tab"
             data-bs-toggle="tab"
             data-bs-target="#settings"
@@ -43,7 +58,7 @@
       <div class="tab-content">
         <!--AMA-->
         <div
-          class="tab-pane"
+          class="tab-pane active"
           id="home"
           role="tabpanel"
           aria-labelledby="home-tab"
@@ -104,9 +119,60 @@
             </tbody>
           </table>
         </div>
+        <!--SUMMARY-->
+        <div
+          class="tab-pane"
+          id="summary"
+          role="tabpanel"
+          aria-labelledby="summary-tab"
+        >
+          <p class="text-center">Let me summarize the current page</p>
+          <form>
+            <div class="form-group row m-1">
+              <!--<label for="prompt" class="col-4 col-form-label">Prompt</label>-->
+              <div class="col-12">
+                <textarea
+                  id="summarize-text"
+                  name="summarize-text"
+                  cols="40"
+                  rows="2"
+                  class="form-control"
+                  placeholder="Paste text here."
+                ></textarea>
+              </div>
+            </div>
+            <div class="form-group row m-1">
+              <div class="offset-4 col-8">
+                <button
+                  id="button-summarize"
+                  name="button-ask-stew"
+                  type="button"
+                  class="btn btn-primary"
+                >
+                  Summarize it!
+                </button>
+              </div>
+            </div>
+          </form>
+          <div id="summarize-response"></div>
+          <table id="summary-history" class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Summaries</th>
+              </tr>
+            </thead>
+            <tbody id="summary-table-body">
+              <tr>
+                <td>??</td>
+                <td>??</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <!-- SETTINGS -->
         <div
-          class="tab-pane active"
+          class="tab-pane"
           id="settings"
           role="tabpanel"
           aria-labelledby="settings-tab"
@@ -143,6 +209,19 @@
                 />
               </div>
             </div>
+
+            <div class="form-group row m-1">
+              <div class="offset-4 col-8">
+                <button
+                  type="button"
+                  name="button-save"
+                  id="button-save"
+                  class="btn btn-primary"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
             <details>
               <!--advanced-->
               <summary>Advanced Settings</summary>
@@ -173,18 +252,6 @@
                 </div>
               </div>
             </details>
-            <div class="form-group row m-1">
-              <div class="offset-4 col-8">
-                <button
-                  type="button"
-                  name="button-save"
-                  id="button-save"
-                  class="btn btn-primary"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
           </form>
         </div>
       </div>
