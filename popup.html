@@ -67,6 +67,20 @@
           <form>
             <div class="form-group row m-1">
               <!--<label for="prompt" class="col-4 col-form-label">Prompt</label>-->
+              <div class="form-group row m-1">
+                <!--ask how aggessive should we summaizer, a little, some, a lot-->
+                <label for="ask-modifier" class="col-4 col-form-label"
+                  >Modifier</label
+                >
+                <div class="col-8">
+                  <select id="ask-modifier" class="form-select">
+                    <option selected value="">No modifier</option>
+                    <option value="step-by-step">Step-by-step</option>
+                    <option value="pirate">Answer as a pirate</option>
+                    <option value="simple-terms">Answer in simple terms</option>
+                  </select>
+                </div>
+              </div>
               <div class="col-12">
                 <textarea
                   id="prompt"

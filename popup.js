@@ -151,6 +151,10 @@ let askStew = () => {
     document.querySelector('#button-ask-stew').disabled = true;
     document.querySelector('#button-ask-stew').innerText = `Loading...`;
     document.querySelector('#button-ask-stew').classList.remove('btn-danger')
+    let action = 'ask';
+    let askModifier = document.querySelector('#ask-modifier').value;
+    console.log({action, askModifier})
+    if(askModifier) action = `${action}-${askModifier}`
     fetch(`${data.scribeMonsterDomain}/.redwood/functions/scribe`, {
       method: 'POST',
       headers: {
@@ -158,7 +162,7 @@ let askStew = () => {
         'Authorization': data.scribeMonsterAuth
       },
       body: JSON.stringify({
-        action: 'ask',
+        action,
         prompt: document.querySelector('#prompt').value
       })
     })
