@@ -47,7 +47,7 @@ function setProgressText() {
     }, 1000);
 
     setTimeout(function () {
-        if (index < emojis.length && index!=0) {
+        if (index < emojis.length && index != 0) {
             clearInterval(progressTimer);
             document.getElementById('scribeMonsterProgress').innerHTML = "I'm all ears!";
         }
@@ -91,21 +91,28 @@ var currentPageToRun = pagesToRunOn.filter(function (page) {
     return pathMatches;
 })?.[0]
 window.addEventListener('load', function () {
-    //log({ currentPageToRun });
-    if (currentPageToRun?.name) {
-        fetch(chrome.runtime.getURL('/assets/scriptModal.html')).then(r => r.text()).then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            
-            // not using innerHTML as it would break js event listeners of the page
-            addButton({ ...currentPageToRun })
-            let modalFetchButton = document.getElementById("scribeMonsterFetchButton")
-            modalFetchButton.addEventListener("click", function () { fetchScribeMonster({ ...currentPageToRun }) })
+    // if scribeMonsterHide is set to true, don't run the script
+    chrome.storage.sync.get(['scribeMonsterHide'], function (data) {
+        console.log({function: 'contentScript', data});
+        if(data.scribeMonsterHide !== true) {
 
-            let modalTrainButton = document.getElementById("scribeMonsterTrainButton")
-            modalTrainButton.addEventListener("click", function () { trainScribeMonster({ ...currentPageToRun }) })
-        });
-    }
+            if (currentPageToRun?.name) {
+                fetch(chrome.runtime.getURL('/assets/scriptModal.html')).then(r => r.text()).then(html => {
+                    document.body.insertAdjacentHTML('beforeend', html);
+
+                    // not using innerHTML as it would break js event listeners of the page
+                    addButton({ ...currentPageToRun })
+                    let modalFetchButton = document.getElementById("scribeMonsterFetchButton")
+                    modalFetchButton.addEventListener("click", function () { fetchScribeMonster({ ...currentPageToRun }) })
+
+                    let modalTrainButton = document.getElementById("scribeMonsterTrainButton")
+                    modalTrainButton.addEventListener("click", function () { trainScribeMonster({ ...currentPageToRun }) })
+                })
+            }
+        }
+    })
 })
+
 
 function log(message) {
     console.log('scribeMonster', { ...message })

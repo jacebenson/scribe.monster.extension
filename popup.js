@@ -9,7 +9,7 @@ let updateDomain = () => {
   })
 }
 let loadAMA = () => {
-  chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
+  chrome.storage.local.get(['scribeMonsterAMA'], function (data) {
     if(data?.scribeMonsterAMA) {
       //document.querySelector('#history').innerHTML = '';
       let questionsHTML = document.querySelector('#history');
@@ -41,7 +41,7 @@ let loadAMA = () => {
             return true;
           })
           //console.log({filtered})
-          chrome.storage.sync.set({scribeMonsterAMA: {questions: [...filtered]}}, function(){
+          chrome.storage.local.set({scribeMonsterAMA: {questions: [...filtered]}}, function(){
             loadAMA()
           })
         });
@@ -74,7 +74,7 @@ let loadAMA = () => {
   })
 }
 let saveAMA = (prompt, text) => {
-  chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
+  chrome.storage.local.get(['scribeMonsterAMA'], function (data) {
     var AMA = {
       questions: []
     };
@@ -83,21 +83,30 @@ let saveAMA = (prompt, text) => {
       AMA.questions = data?.scribeMonsterAMA?.questions
     }
     AMA.questions.push({when: new Date(), prompt, text})
-    chrome.storage.sync.set({ scribeMonsterAMA: AMA }, (data) => {
+    chrome.storage.local.set({ scribeMonsterAMA: AMA }, (data) => {
       //console.log({function: 'history after set', data, AMA})
       loadAMA()        
     })
   })
 }
 let removeOneAMA = (id)=>{
-  chrome.storage.sync.get(['scribeMonsterAMA'], function (data) {
+  chrome.storage.local.get(['scribeMonsterAMA'], function (data) {
+    // load the list of amas and remove the id in
     let filteredAMA = data.scribeMonsterAMA.questions.filter(function(QandA, index){
       return index !== id
     })
-    chrome.storage.sync.set({ scribeMonsterAMA: {questions: [...filteredAMA]} }, (data) => {
+
+    chrome.storage.local.set({ scribeMonsterAMA: {questions: [...filteredAMA]} }, (data) => {
       console.log({function: 'history after set', data, AMA})
       loadAMA()        
     })
+  })
+}
+let updateHide = () => {
+  let scribeMonsterHide = document.querySelector('#hide').checked
+  console.log({ function: 'updateHide', scribeMonsterHide})
+  chrome.storage.sync.set({ scribeMonsterHide }, () => {
+    //console.log('set hide', scribeMonsterHide);
   })
 }
 
@@ -190,7 +199,11 @@ let askStew = () => {
   })
 }
 function setValuesFromChromeStorage() {
-  chrome.storage.sync.get(['scribeMonsterKey', 'scribeMonsterUser', 'scribeMonsterAuth', 'scribeMonsterDomain'], function (data) {
+  chrome.storage.sync.get(['scribeMonsterKey', 'scribeMonsterUser', 'scribeMonsterAuth', 'scribeMonsterDomain', 'scribeMonsterHide'], function (data) {
+    console.log({ function: 'setValuesFromChromeStorage', data})
+    if (data.scribeMonsterHide) {
+      document.querySelector('#hide').checked = true;
+    }
     if (data.scribeMonsterKey && data.scribeMonsterUser) {
       document.querySelector('#user').value = data.scribeMonsterUser
       document.querySelector('#key').value = data.scribeMonsterKey
@@ -263,3 +276,4 @@ document.querySelector('#button-ask-stew').addEventListener('click', askStew);
 document.querySelector('#button-summarize').addEventListener('click', summarize);
 document.querySelector('#domain').addEventListener('keyup', updateDomain);
 document.querySelector('#button-pop-out').addEventListener('click', popout)
+document.querySelector('#hide').addEventListener('change', updateHide)
