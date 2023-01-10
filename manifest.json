@@ -1,12 +1,32 @@
 {
+  "manifest_version": 3,
   "name": "ScribeMonster",
-  "version": "1.1.3",
   "description": "Generate scripts with OpenAI in ServiceNow",
+  "version": "2.3",
   "permissions": ["storage"],
-  "host_permissions": [
-    "https://*.service-now.com/*",
-    "https://*.servicenowservices.com/*"
-  ],
+  "icons": {
+    "48":  "src/48.png",
+    "128": "src/128.png"
+  },  
+  "action": { 
+    "default_popup": "index.html", 
+    "default_icon": {
+      "16": "src/scribeMonster.png",
+      "24": "src/scribeMonster.png",
+      "32": "src/scribeMonster.png"
+    },
+    "default_title": "Scribe Monster Title"
+  },
+  "web_accessible_resources": [
+    { 
+      "resources": [
+        "src/scribeMonster.png"
+      ],
+      "matches": [
+        "https://*.service-now.com/*", 
+        "https://*.servicenowservices.com/*"
+      ]
+    }],
   "content_scripts": [
     {
       "matches": [
@@ -14,41 +34,10 @@
         "https://*.servicenowservices.com/*"
       ],
       "js": [
-        "contentScripts/pagesToRunOn.js",
-        "contentScripts/estimateTokens.js",
-        "contentScripts/fetchScribeMonster.js",
-        "contentScripts/trainScribeMonster.js",
-        "contentScript.js"
+        "src/content.js"
       ],
       "all_frames": true,
       "run_at": "document_end"
     }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "assets/scribeMonster.png",
-        "assets/scriptModal.html",
-        "popup.html"
-      ],
-      "matches": [
-        "https://*.service-now.com/*",
-        "https://*.servicenowservices.com/*"
-      ]
-    }
-  ],
-  "action": {
-    "default_icon": {
-      "16": "assets/scribeMonster.png",
-      "24": "assets/scribeMonster.png",
-      "32": "assets/scribeMonster.png"
-    },
-    "default_title": "Scribe Monster Title",
-    "default_popup": "popup.html"
-  },
-  "icons": {
-    "48":  "assets/48.png",
-    "128": "assets/128.png"
-  },  
-  "manifest_version": 3
+  ]
 }
