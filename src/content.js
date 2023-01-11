@@ -39,9 +39,9 @@ let getFormData = (table) => {
             // get the selected option
             display = element.querySelector('option:checked')?.innerText;
         }
-        if (element.value) {
+        //if (element.value) {
             data[field] = { value, display, original: original || value, displayName }
-        }
+        //}
     })
     return data;
 }
@@ -164,7 +164,7 @@ let contentModal = (page) => {
         </div>
         <!--<details>
           <summary>&nbsp;</summary>
-          <pre>${JSON.stringify(getFormData(), '', ' ')}</pre>
+          <pre>\${JSON.stringify(getFormData(), '', ' ')}</pre>
         </details>-->
       </div>
     </div>
@@ -252,12 +252,13 @@ function fetchScribeMonster({ page, ...args }) {
         let table = page.path.split('/')[1].split('.')[0];
         // make the type cs-onchange, cs-onsubmit, cs-onloadm, br-when-crud
         let type = currentForm?.type?.value || "na";
+        let field = document?.querySelector('#scribeMonsterSelect').value
         if (!data.scribeMonsterAuth) {
             document.getElementById('scribeMonsterCode').value = "Please validate your ScribeMonster account in the extension options";
             return;
         }
         if (data.scribeMonsterAuth) {
-            let body = { input, prompt, action, table, type, suffix }
+            let body = { input, prompt, action, table, type, suffix, field }
             //log({ body })
             const options = {
                 method: 'POST',
@@ -309,21 +310,79 @@ function fetchScribeMonster({ page, ...args }) {
         }
     });
 }
-let pagesToRunOn = [
-    /*{
-        path: 'path to page with preceding slash',
-        labelButtonSelector: 'selector for the button to add' if not given, i try to add it
-    },*/
-    { path: '/sys_script_client.do' },
-    { path: '/sys_script.do' },
-    { path: '/sys_ui_page.do' },
+//let pagesToRunOn = [
+    //{
+    //    path: 'path to page with preceding slash',
+    //    labelButtonSelector: 'selector for the button to add' if not given, i try to add it
+    //},
+    //{ path: '/sys_script_client.do' },
+    //{ path: '/sys_script.do' },
+    //{ path: '/sys_ui_page.do' },
+
+//]
+let pages = [
+    'sysauto_script',// same as fix script
+    'sys_script_fix',
+    'ecc_agent_script_include',//like script include
+    'sys_script_include',
+    'bsm_action',//?
+    'cmn_map_page',//?
+    'content_block_programmatic',//jelly
+    'sys_ui_macro',//jelly
+    'kb_navons',//window.open('http://www.google.com/search?sourceid=service-now&q=' + text, "googleSearch");
+    'metric_definition',//done
+    'process_step_approval',//skipping
+    'sc_cat_item_producer',//done few-shot
+    'sp_angular_provider',//one-shot needs work
+    'sp_search_source',//one-shot needs work
+    'sp_widget',// few-shot needs work
+    'sysevent_email_action',//done
+    'sysevent_email_template',//done
+    'sysevent_in_email_action',
+    'sysevent_script_action',//same as mail script.. sort of
+    //'sys_dictionary',
+    //'sys_dictionary_override',
+    //'sys_filter_option_dynamic',
+    //'sys_installation_exit',
+    //'sys_processor',
+    //'sys_properties',
+    //'sys_relationship',
+    'sys_script',//done
+    //'sys_script_ajax',//what are these?
+    //'sys_script_client',//done
+    'sys_script_email',//few shot
+    
+    
+    //'sys_script_validator',
+    //'sys_security_acl',
+    //'sys_transform_entry',
+    //'sys_transform_map',
+    //'sys_transform_script',
+    //'sys_trigger',
+    'sys_ui_action',//one shot needs work
+    //'sys_ui_context_menu',
+    //'sys_ui_list_control',
+    'sys_ui_page',
+    //'sys_ui_policy',
+    'sys_ui_script',
+    //'sys_variable_value',
+    //'sys_web_service',
+    //'sys_widgets',
+    //'sys_ws_operation',
+    //'wf_activity_definition'
 ]
+
+//[    { path: '/sys_script_client.do' },]
+
+let pagesToRunOn = pages.map(page => {
+    return { path: `/${page}.do` }
+    }
+)
 // adds the button to the pages
 var currentPageToRun = pagesToRunOn.filter(function (page) {
     let pathMatches = window.location.pathname.startsWith(page.path)
     return pathMatches;
 })?.[0]
-console.log({ line: 104, scribeMonster: currentPageToRun })
 window.addEventListener('load', (function () {
     log({ line: 106, currentPageToRun });
     if (currentPageToRun) {
@@ -331,15 +390,6 @@ window.addEventListener('load', (function () {
             let html = contentModal(currentPageToRun);
             log({ line: 110, scribeMonsterHtml: html })
             document.body.insertAdjacentHTML('beforeend', html);
-            // after the modal is added, add the monaco editor
-            //let loaderPath = chrome.runtime.getURL('./src/monaco-editor/min/vs/loader.js')
-            //let monacoLoaderScript = document.createElement('script');
-            //monacoLoaderScript.src = loaderPath;
-            //scribeMonsterModal.appendChild(monacoLoaderScript);
-            //let monacoScriptElement = document.createElement('script');
-            //monacoScriptElement.src = chrome.runtime.getURL('./src/monaco-settings.js');
-            //scribeMonsterModal.appendChild(monacoScriptElement);
-
             addButton({ ...currentPageToRun })
             // add event listeners to the modal
             let modalCloseButton = document.getElementById("scribeMonsterCloseButton")
@@ -404,16 +454,18 @@ window.addEventListener('load', (function () {
             // add event listener so when the create code button is clicked, it fetches the code
             let createCodeButton = document.getElementById('scribeMonsterCreateCodeButton');
             createCodeButton.addEventListener("click", function () {
+                let field = scribeMonsterSelect.options[scribeMonsterSelect.selectedIndex].value;
                 console.log({ function: 'completeCodeButton.addEventListener'}, { page: currentPageToRun, prompt: document.getElementById('scribeMonsterPrompt').value, action: 'complete' })
                 // get the prompt value
                 let prompt = document.getElementById('scribeMonsterPrompt').value;
                 // fetch the code
-                fetchScribeMonster({ page: currentPageToRun, prompt, action: 'complete' })
+                fetchScribeMonster({ page: currentPageToRun, prompt, action: 'complete', field })
             });
             // add event listener so when the edit code button is clicked, it fetches the code
             let editCodeButton = document.getElementById('scribeMonsterEditCodeButton');
             editCodeButton.addEventListener("click", function () {
-                console.log({ function: 'editCodeButton.addEventListener'}, { page: currentPageToRun, prompt: document.getElementById('scribeMonsterPrompt').value, input: document.getElementById('scribeMonsterCode').value, action: 'edit' })
+                let field = scribeMonsterSelect.options[scribeMonsterSelect.selectedIndex].value;
+                console.log({ function: 'editCodeButton.addEventListener'}, { page: currentPageToRun, prompt: document.getElementById('scribeMonsterPrompt').value, input: document.getElementById('scribeMonsterCode').value, action: 'edit', field })
                 // get the prompt value
                 let input = document.getElementById('scribeMonsterCode').value;
                 let prompt = document.getElementById('scribeMonsterPrompt').value;
