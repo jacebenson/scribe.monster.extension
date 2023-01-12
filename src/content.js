@@ -279,7 +279,6 @@ function fetchScribeMonster({ page, ...args }) {
                         document.getElementById('scribeMonsterMessage').innerHTML = `${response.raw.error.message}`
                         return;
                     }
-                    console.log({ action, response })
                     if (action == "inline-suggest-code") {
                         // the response code is the inline code to add
                         // add var for the prefix to prepend
@@ -398,7 +397,7 @@ window.addEventListener('load', (function () {
             scribeMonsterSelect.addEventListener("change", function () {
                 let field = scribeMonsterSelect.options[scribeMonsterSelect.selectedIndex].value;
                 // set the text area to the value of getFormData.field
-                let code = getFormData()[field].value;
+                let code = getFormData()[field].value || "";
                 let textArea = document.getElementById('scribeMonsterCode');
                 // set the textarea text font to a monospace font
                 textArea.style.fontFamily = "monospace";
@@ -455,7 +454,6 @@ window.addEventListener('load', (function () {
             let createCodeButton = document.getElementById('scribeMonsterCreateCodeButton');
             createCodeButton.addEventListener("click", function () {
                 let field = scribeMonsterSelect.options[scribeMonsterSelect.selectedIndex].value;
-                console.log({ function: 'completeCodeButton.addEventListener'}, { page: currentPageToRun, prompt: document.getElementById('scribeMonsterPrompt').value, action: 'complete' })
                 // get the prompt value
                 let prompt = document.getElementById('scribeMonsterPrompt').value;
                 // fetch the code
@@ -465,7 +463,6 @@ window.addEventListener('load', (function () {
             let editCodeButton = document.getElementById('scribeMonsterEditCodeButton');
             editCodeButton.addEventListener("click", function () {
                 let field = scribeMonsterSelect.options[scribeMonsterSelect.selectedIndex].value;
-                console.log({ function: 'editCodeButton.addEventListener'}, { page: currentPageToRun, prompt: document.getElementById('scribeMonsterPrompt').value, input: document.getElementById('scribeMonsterCode').value, action: 'edit', field })
                 // get the prompt value
                 let input = document.getElementById('scribeMonsterCode').value;
                 let prompt = document.getElementById('scribeMonsterPrompt').value;
@@ -474,7 +471,6 @@ window.addEventListener('load', (function () {
             });
             // add event listener so when the explain button is clicked, it fetches the code
             let explainButton = document.getElementById('scribeMonsterExplainButton');
-            console.log({ function: 'explainButton.addEventListener', }, { page: currentPageToRun, input: document.getElementById('scribeMonsterCode').value, action: 'explain' })
             explainButton.addEventListener("click", function () {
                 // get the prompt value
                 let input = document.getElementById('scribeMonsterCode').value;
@@ -484,6 +480,8 @@ window.addEventListener('load', (function () {
             // add event listener so when the run copy button is clicked, it's copied to the clipboard
             let runCopyButton = document.getElementById('scribeMonsterRunCopyButton');
             runCopyButton.addEventListener("click", function () {
+                // update the button text to say "coping..."
+                runCopyButton.innerHTML = "coping...";
                 // get the code
                 let code = document.getElementById('scribeMonsterCode').value;
                 // copy the code to the clipboard
@@ -494,13 +492,22 @@ window.addEventListener('load', (function () {
                 navigator.clipboard.write(data).then(
                     () => {
                     /* success */
-                    console.log('copied to clipboard')
-                    },
+                    // update the button text to say "copied"
+                    runCopyButton.innerHTML = "copied";
+                    // wait 1 second and then change the button text back to "copy"
+                    setTimeout(() => {
+                        runCopyButton.innerHTML = "copy";
+
+                    }, 1000),
                     () => {
                     /* failure */
-                    console.log('failed to copy to clipboard')
-                    }
-                );
+                    // update the button text to say "error copying"
+                    runCopyButton.innerHTML = "error copying";
+                    // wait 1 second and then change the button text back to "copy"
+                    setTimeout(() => {
+                        runCopyButton.innerHTML = "copy";
+                    }, 1000)}
+                });
             });
         } catch (error) {
             log({ line: 123, error })
@@ -510,5 +517,5 @@ window.addEventListener('load', (function () {
 })());
 
 function log(message) {
-    console.log('scribeMonster', { ...message })
+    //console.log('scribeMonster', { ...message })
 }

@@ -9,8 +9,5 @@
   },
   "devDependencies": {
     "vite": "^2.9.15"
-  },
-  "dependencies": {
-    "monaco-editor": "^0.34.1"
   }
 }

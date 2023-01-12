@@ -49,62 +49,77 @@ let setHistoryData = ({storageName}) => {
     return
   }
   let histories = data[storageName].map((item, index)=>{
-    let shortPrompt = item.prompt.substring(0, 20);
-    // create a delete button in the fist column
-    //let historyRow = document.createElement('tr');
-    //let historyRowHeader = document.createElement('th');
-    //historyRowHeader.scope = 'row';
-    //let historyRowHeaderButton = document.createElement('button');
-    //historyRowHeaderButton.className = 'btn btn-danger';
-    //historyRowHeaderButton.dataset.id = index;
-    //historyRowHeaderButton.dataset.storage = storageName;
-    //historyRowHeaderButton.onclick = removeHistoryItem;
-    //historyRowHeaderButton.innerHTML = 'X';
-    //historyRowHeader.appendChild(historyRowHeaderButton);
-    //historyRow.appendChild(historyRowHeader);
-    //// create a details element in the second column
-    //let historyRowDetails = document.createElement('td');
-    //let historyRowDetailsSummary = document.createElement('summary');
-    //let historyRowDetailsSummaryH3 = document.createElement('h3');
-    //historyRowDetailsSummaryH3.style = 'display:inline;';
-    //historyRowDetailsSummaryH3.innerHTML = shortPrompt;
-    //historyRowDetailsSummary.appendChild(historyRowDetailsSummaryH3);
-    //let historyRowDetailsDetails = document.createElement('details');
-    //let historyRowDetailsDetailsSummary = document.createElement('summary');
-    //historyRowDetailsDetailsSummary.innerHTML = 'Full Prompt';
-    //let historyRowDetailsDetailsDetails = document.createElement('details');
-    //let historyRowDetailsDetailsDetailsSummary = document.createElement('summary');
-    //historyRowDetailsDetailsDetailsSummary.innerHTML = 'Full Response';
-    //let historyRowDetailsDetailsDetailsDetails = document.createElement('details');
-    //historyRowDetailsDetailsDetailsDetails.innerHTML = item.response;
-    //historyRowDetailsDetailsDetails.appendChild(historyRowDetailsDetailsDetailsSummary);
-    //historyRowDetailsDetailsDetails.appendChild(historyRowDetailsDetailsDetailsDetails);
-    //historyRowDetailsDetails.appendChild(historyRowDetailsDetailsSummary);
-    //historyRowDetailsDetails.appendChild(historyRowDetailsDetailsDetails);
-    //historyRowDetails.appendChild(historyRowDetailsSummary);
-    //historyRowDetails.appendChild(historyRowDetailsDetails);
-    //historyRow.appendChild(historyRowDetails);
-    //return historyRow;
+    let htmlResponse = new DOMParser().parseFromString(item.response, "text/html");
+    let mermaidElement = htmlResponse.querySelector('.mermaid');
+    console.log({mermaidElement})
+    if(mermaidElement?.innerText){
+    let mermaidCodeBase64 = btoa(mermaidElement.innerText);
+    let mermaidImageUrl = `https://mermaid.ink/img/${mermaidCodeBase64}`;
+    let mermaidImage = document.createElement('img');
+    // image max width is 400px
+    mermaidImage.style = 'max-width:400px';
+    mermaidImage.src = mermaidImageUrl;
+    let mermaidLink = document.createElement('a');
+    mermaidLink.setAttribute('target', '_blank');
+    mermaidLink.setAttribute('href', mermaidImageUrl);
+    mermaidLink.innerText = 'View (right-click to open) Full Size';
+    mermaidElement.parentNode.insertBefore(mermaidLink, mermaidElement.nextSibling);
+    mermaidElement.parentNode.insertBefore(mermaidImage, mermaidElement.nextSibling);
+    mermaidElement.style = 'display:none';
+    }
 
-    //onclick="removeHistoryItem({storageName:'${storageName}', id:${index}})"
-      return `
-      <tr>
-        <th scope="row">
-          <button class="btn btn-danger" data-id="${index}" data-storage="${storageName}" >X</button>
-        </th>
-        <td>
-          <details>
-            <summary><h3 style="display:inline;">${shortPrompt}</h3></summary>
-            <div style="text-align:left">
-              <details><summary>Full Prompt</summary>${item.prompt}</details>
-              <hr/>
-              <details open="true" style="white-space: pre-line"><summary>Full Response</summary><div  contenteditable="true" >${item.response}<div></details>
-            </div>
-          </details>
-        </td>
-      </tr>
-      `
+    let shortPrompt = item.prompt.substring(0, 20);
+    let row = document.createElement('tr');
+    let rowHeader = document.createElement('th');
+    rowHeader.scope = 'row';
+    let deleteButton = document.createElement('button');
+    deleteButton.classList.add('btn');
+    deleteButton.classList.add('btn-danger');
+    deleteButton.dataset.id = index;
+    deleteButton.dataset.storage = storageName;
+    deleteButton.innerHTML = 'X';
+    rowHeader.appendChild(deleteButton);
+    row.appendChild(rowHeader);
+    let rowDetails = document.createElement('td');
+    let details = document.createElement('details');
+    let summary = document.createElement('summary');
+    let h3 = document.createElement('h3');
+    h3.style = 'display:inline';
+    h3.innerHTML = shortPrompt;
+    summary.appendChild(h3);
+    details.appendChild(summary);
+    let div = document.createElement('div');
+    div.style = 'text-align:left';
+    let promptDetails = document.createElement('details');
+    let promptSummary = document.createElement('summary');
+    promptSummary.innerHTML = 'Full Prompt';
+    promptDetails.appendChild(promptSummary);
+    let promptDiv = document.createElement('div');
+    promptDiv.innerHTML = item.prompt;
+    promptDetails.appendChild(promptDiv);
+    div.appendChild(promptDetails);
+    let hr = document.createElement('hr');
+    div.appendChild(hr);
+    let responseDetails = document.createElement('details');
+    responseDetails.open = true;
+    responseDetails.style = 'white-space: pre-line';
+    let responseSummary = document.createElement('summary');
+    responseSummary.innerHTML = 'Full Response';
+    responseDetails.appendChild(responseSummary);
+    let responseDiv = document.createElement('div');
+    responseDiv.id = `response-${index}`;
+    responseDiv.contentEditable = true;
+    responseDiv.innerHTML = htmlResponse.body.innerHTML;//?
+    responseDetails.appendChild(responseDiv);
+    div.appendChild(responseDetails);
+    details.appendChild(div);
+    rowDetails.appendChild(details);
+    row.appendChild(rowDetails);
+    // return the html for the row
+    return row.outerHTML;
   });
+
+  
   document.querySelector(`#history-table-body-${storageName}`).innerHTML = histories.join('');
   // once we have created the rows, add event listeners to the delete buttons
   document.querySelectorAll(`#history-table-body-${storageName} button`).forEach((button)=>{
