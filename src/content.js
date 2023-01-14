@@ -11,7 +11,8 @@ let getFormData = (table) => {
     let data = {};
     const elements = document.querySelectorAll(`[id^=${table}]`)
     elements.forEach((element) => {
-        //console.log({element})
+        let fieldNameParts = element.id.split('.');
+        if (fieldNameParts.length < 2) return;
         let field = element.id.split('.')[1];
         let displayName = (() => {
             try {
@@ -31,7 +32,7 @@ let getFormData = (table) => {
 
         })()
 
-        let value = element.value;
+        let value = element.value || document.getElementById(`${table}.${field}`)?.value;
         let display = document.getElementById(`sys_display.original.${table}.${field}`)?.value || value;
         let original = document.getElementById(`sys_original.${table}.${field}`)?.value;
         if (element.childElementCount > 0) {
@@ -46,12 +47,20 @@ let getFormData = (table) => {
     return data;
 }
 let contentModal = (page) => {
-    console.log({ function: 'contentModal', page })
-    //console.log({function:'tabSection', title, id, active, form, history})
-    // create monco editor
-    // https://microsoft.github.io/monaco-editor/playground.html#interacting-with-the-editor-adding-an-action-to-an-editor-instance
     let returnHtml = ``;
     let currentForm = getFormData();
+    if(page?.fields && page.fields.length > 0){
+        let limitedForm = {}
+        //data[field] = { value, display, original: original || value, displayName }
+        limitedForm.__not_a_field = {
+            value: '...',
+            displayName: 'Pick a field',
+        }
+        page.fields.map((field)=>{
+            limitedForm[field] = currentForm[field];
+        })
+        currentForm = limitedForm
+    }
     let mailToLink = 'mailto:jace@benson.run?subject=ScribeMonster%20Feedback&body=Jace%2C%20I%20was%20using%20your%20extension%20and%20wanted%20to%20share%3B%0A...';
     returnHtml += `<style>
     #scribeMonsterModal {
@@ -225,7 +234,6 @@ function closeModal() {
 }
 function askForCode() {
     try {
-        //log({ script: document.getElementById(scriptElement.element)?.value })
         document.getElementById('scribeMonsterModal').scrollIntoView();
         document.getElementById('scribeMonsterModal').classList.remove('hidden');
         //document.getElementById('scribeMonsterMessage').innerHTML = "I'm here for you"
@@ -253,8 +261,13 @@ function fetchScribeMonster({ page, ...args }) {
         // make the type cs-onchange, cs-onsubmit, cs-onloadm, br-when-crud
         let type = currentForm?.type?.value || "na";
         let field = document?.querySelector('#scribeMonsterSelect').value
+        console.log({ currentForm, field, type, table, action, prompt, input, suffix, data })
         if (!data.scribeMonsterAuth) {
             document.getElementById('scribeMonsterCode').value = "Please validate your ScribeMonster account in the extension options";
+            return;
+        }
+        if(field === '__not_a_field'){
+            document.getElementById('scribeMonsterCode').value = "Please select a field";
             return;
         }
         if (data.scribeMonsterAuth) {
@@ -273,7 +286,6 @@ function fetchScribeMonster({ page, ...args }) {
             fetch(endpoint, options)
                 .then(response => response.json())
                 .then(response => {
-                    //console.log({ response });
                     clearInterval(progressTimer);
                     if (response?.raw?.error) {
                         document.getElementById('scribeMonsterMessage').innerHTML = `${response.raw.error.message}`
@@ -319,26 +331,32 @@ function fetchScribeMonster({ page, ...args }) {
     //{ path: '/sys_ui_page.do' },
 
 //]
-let pages = [
-    'sysauto_script',// same as fix script
-    'sys_script_fix',
-    'ecc_agent_script_include',//like script include
-    'sys_script_include',
-    'bsm_action',//?
-    'cmn_map_page',//?
-    'content_block_programmatic',//jelly
-    'sys_ui_macro',//jelly
-    'kb_navons',//window.open('http://www.google.com/search?sourceid=service-now&q=' + text, "googleSearch");
-    'metric_definition',//done
-    'process_step_approval',//skipping
-    'sc_cat_item_producer',//done few-shot
-    'sp_angular_provider',//one-shot needs work
-    'sp_search_source',//one-shot needs work
-    'sp_widget',// few-shot needs work
-    'sysevent_email_action',//done
-    'sysevent_email_template',//done
-    'sysevent_in_email_action',
-    'sysevent_script_action',//same as mail script.. sort of
+let pagesToRunOn = [
+    { path: '/sysauto_script.do',/*same as fix script*/ fields:['script']},
+    { path: '/sys_script_fix.do', fields:['script']},
+    { path: '/ecc_agent_script_include.do',/*like script include*/ fields:['script']},
+    { path: '/sys_script_include.do', fields:['script']},
+    { path: '/bsm_action.do', fields:['script']},
+    { path: '/cmn_map_page.do', fields:['script']},
+    { path: '/content_block_programmatic.do',/*jelly*/ fields:['programmatic_content']},
+    { path: '/sys_ui_macro.do',/*jelly*/ fields:['xml']},
+    { path: '/kb_navons.do', fields:['script']},
+    { path: '/metric_definition.do', fields:['script']},
+    { path: '/sc_cat_item_producer.do',/*done few-shot*/ fields:['script']},//comeback to do html description
+    { path: '/sp_angular_provider.do',/*one-shot needs work*/ fields:['script']},
+    { path: '/sp_search_source.do',/*one-shot needs work*/ fields:['search_page_template']},
+    { path: '/sp_widget.do',/*few-shot needs work*/ fields:['template','css','script','client_script','link']},
+    { path: '/sysevent_email_action.do',/*done*/ fields:['message_html','advanced_condition']},
+    { path: '/sysevent_email_template.do',/*done*/ fields:['message_html','advanced_condition']},
+    { path: '/sysevent_in_email_action.do', fields:[]},
+    { path: '/sysevent_script_action.do',/*same as mail script.. sort of*/ fields:[]},
+    { path: '/sys_script.do',/*done*/ fields:[]},
+    { path: '/sys_script_client.do',/*done*/ fields:['script']},
+    { path: '/sys_script_email.do',/*few shot*/ fields:['script']},
+    { path: '/sys_ui_action.do',/*one shot needs work*/ fields:['script']},
+    { path: '/sys_ui_page.do', fields:['html','client_script','processing_script']},
+    { path: '/sys_ui_script.do', fields:['script']},
+    //'process_step_approval',//skipping
     //'sys_dictionary',
     //'sys_dictionary_override',
     //'sys_filter_option_dynamic',
@@ -346,10 +364,8 @@ let pages = [
     //'sys_processor',
     //'sys_properties',
     //'sys_relationship',
-    'sys_script',//done
+    
     //'sys_script_ajax',//what are these?
-    //'sys_script_client',//done
-    'sys_script_email',//few shot
     
     
     //'sys_script_validator',
@@ -358,36 +374,27 @@ let pages = [
     //'sys_transform_map',
     //'sys_transform_script',
     //'sys_trigger',
-    'sys_ui_action',//one shot needs work
+    
     //'sys_ui_context_menu',
     //'sys_ui_list_control',
-    'sys_ui_page',
+    
     //'sys_ui_policy',
-    'sys_ui_script',
+    
     //'sys_variable_value',
     //'sys_web_service',
     //'sys_widgets',
     //'sys_ws_operation',
     //'wf_activity_definition'
 ]
-
-//[    { path: '/sys_script_client.do' },]
-
-let pagesToRunOn = pages.map(page => {
-    return { path: `/${page}.do` }
-    }
-)
 // adds the button to the pages
 var currentPageToRun = pagesToRunOn.filter(function (page) {
     let pathMatches = window.location.pathname.startsWith(page.path)
     return pathMatches;
 })?.[0]
 window.addEventListener('load', (function () {
-    log({ line: 106, currentPageToRun });
     if (currentPageToRun) {
         try {
             let html = contentModal(currentPageToRun);
-            log({ line: 110, scribeMonsterHtml: html })
             document.body.insertAdjacentHTML('beforeend', html);
             addButton({ ...currentPageToRun })
             // add event listeners to the modal
@@ -446,7 +453,7 @@ window.addEventListener('load', (function () {
                 let cursorPosition = textAreaCode.selectionStart;
                 let codeBeforeCursor = currentCode.substring(0, cursorPosition);
                 let codeAfterCursor = currentCode.substring(cursorPosition, currentCode.length);
-                log({ codeBeforeCursor, codeAfterCursor })
+                //log({ codeBeforeCursor, codeAfterCursor })
                 // fetch the code
                 fetchScribeMonster({ page: currentPageToRun, prefix: codeBeforeCursor, suffix: codeAfterCursor, originalCode, field })
             })
@@ -510,12 +517,12 @@ window.addEventListener('load', (function () {
                 });
             });
         } catch (error) {
-            log({ line: 123, error })
+            log({ error })
         }
         //});
     }
 })());
 
 function log(message) {
-    //console.log('scribeMonster', { ...message })
+    console.log('scribeMonster', { ...message })
 }
