@@ -21,7 +21,7 @@ let generateForm = ({ form }) => {
         id="${field.id}" 
         rows="3"
         placeholder="${field.placeholder}"
-        ></textarea>
+        >${field?.value || ""}</textarea>
         </div>`);
     }
     if (field.label && field.type === 'select') {

@@ -10,10 +10,22 @@ import summary from './src/summary.js'
 import docs from './src/docs.js'
 import settings from './src/settings.js'
 
+let saveValueToTempPromptObject = ({ id, value }) => {
+  chrome.storage.local.get([id], (data) => {
+    let tempPromptObject = data;
+    tempPromptObject[id] = value;
+    chrome.storage.local.set({ tempPromptObject }, () => {
+      console.log('tempPromptObject updated');
+    });
+  });
+};
 
-chrome.storage.local.get(['activeTab'], (data) => {
+chrome.storage.local.get(['activeTab', 'tempPromptObj'], (data) => {
   // identify if this is a unpacked extension or a packed extension
   let activeTab = data.activeTab || 'settings-tab';
+  let tempPromptObj = data.tempPromptObj || {
+    ama: 'This is a test ama prompt.',
+  };
   document.querySelector('#app').innerHTML = `
 <div class="container mt-3" style="min-width: 450px">
   <h2 class="text-center">Scribe Monster</h2>
@@ -32,7 +44,7 @@ chrome.storage.local.get(['activeTab'], (data) => {
     form: generateForm({
       form: {
         fields: [
-          { id: 'ask-prompt', type: 'textarea', placeholder: 'Ask me anything........' },
+          { id: 'ask-prompt', type: 'textarea', placeholder: 'Ask me anything.', value: tempPromptObj?.ama || ''},
           { label: 'Modifier', id: 'ask-level', type: 'select', placeholder: 'level', options: [{label: 'No modifier', value: 'ask'}, {label: 'Simple Terms', value: 'ask-simple-terms'}, {label: 'Pirate', value: 'ask-pirate'}, {label: 'Step by step', value: 'ask-step-by-step'}] },
           { label: 'Ask Stew', id: 'button-ask-stew', type: 'button' }
         ]
@@ -48,7 +60,7 @@ chrome.storage.local.get(['activeTab'], (data) => {
       form: {
         fields: [
           { label: "How much?", id: 'summarize-level', type: 'select', placeholder: 'level', options: [{ value: '1', label: 'A little' }, { value: '2', label: 'Some' }, { value: '3', label: 'A lot' }] },
-          { id: 'summarize-prompt', type: 'textarea', placeholder: 'text to summarize' },
+          { id: 'summarize-prompt', type: 'textarea', placeholder: 'text to summarize',  value: tempPromptObj?.summarize || '' },
           { label: 'Summarize', id: 'button-summarize', type: 'button' }
         ]
       },
@@ -67,13 +79,13 @@ chrome.storage.local.get(['activeTab'], (data) => {
             { value: 'product-requirements', label: 'Product Requirements' }, 
             { value: 'diagram', label: 'Diagrams' }
           ] },
-          { id: 'docs-prompt', type: 'textarea', placeholder: 'text to summarize' },
+          { id: 'docs-prompt', type: 'textarea', placeholder: '...',  value: tempPromptObj?.docs || '' },
           { label: 'Generate', id: 'button-docs', type: 'button' }
         ]
       },
     })
   })}
-    ${tabSection({
+    ${tabSection({// Settings
     title: 'Settings',
     id: 'settings',
     active: (activeTab === 'settings-tab') ? true : false,
@@ -105,6 +117,29 @@ chrome.storage.local.get(['activeTab'], (data) => {
   // Add field event listeners
   document.querySelector('#domain').addEventListener('change', settings.setDomain)
   document.querySelector('#showButton').addEventListener('change', settings.setShowButton)
+  document.querySelector('#ask-prompt').addEventListener('keyup', (e) => {
+    tempPromptObj.ama = e.target.value;
+    chrome.storage.local.set({ tempPromptObj }, (data) => {
+      console.log('tempPromptObj set to', tempPromptObj, data);
+    }
+    );
+  })
+  document.querySelector('#summarize-prompt').addEventListener('keyup', (e) => {
+    tempPromptObj.summarize = e.target.value;
+    chrome.storage.local.set({ tempPromptObj }, (data) => {
+      console.log('tempPromptObj set to', tempPromptObj, data);
+    }
+    );
+  })
+  document.querySelector('#docs-prompt').addEventListener('keyup', (e) => {
+    if(e.target.value == '') delete tempPromptObj.docs
+    tempPromptObj.docs = e.target.value;
+    chrome.storage.local.set({ tempPromptObj }, (data) => {
+      console.log('tempPromptObj set to', tempPromptObj, data);
+    }
+    );
+  })
+
   // when tab is clicked, change the active tab
 
   document.querySelectorAll('.nav-link').forEach((el) => {
