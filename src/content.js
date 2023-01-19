@@ -353,7 +353,7 @@ let pagesToRunOn = [
     { path: '/sys_script.do',/*done*/ fields:[]},
     { path: '/sys_script_client.do',/*done*/ fields:['script']},
     { path: '/sys_script_email.do',/*few shot*/ fields:['script']},
-    { path: '/sys_ui_action.do',/*one shot needs work*/ fields:['script']},
+    { path: '/sys_ui_action.do',/*one shot needs work*/ fields:['script', 'client_script_v2']},
     { path: '/sys_ui_page.do', fields:['html','client_script','processing_script']},
     { path: '/sys_ui_script.do', fields:['script']},
     //'process_step_approval',//skipping

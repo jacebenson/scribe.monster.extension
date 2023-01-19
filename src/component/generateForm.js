@@ -91,6 +91,9 @@ let generateForm = ({ form }) => {
           </button>
         </div>`);
     }
+    if (field.type === 'html') {
+      fieldHtml.push(field.html);
+    }
     fieldHtml.push(`</div>`);
     return fieldHtml.join(' ');
   })

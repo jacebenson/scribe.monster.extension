@@ -23,9 +23,7 @@ let saveValueToTempPromptObject = ({ id, value }) => {
 chrome.storage.local.get(['activeTab', 'tempPromptObj'], (data) => {
   // identify if this is a unpacked extension or a packed extension
   let activeTab = data.activeTab || 'settings-tab';
-  let tempPromptObj = data.tempPromptObj || {
-    ama: 'This is a test ama prompt.',
-  };
+  let tempPromptObj = data.tempPromptObj || {};
   document.querySelector('#app').innerHTML = `
 <div class="container mt-3" style="min-width: 450px">
   <h2 class="text-center">Scribe Monster</h2>
@@ -44,7 +42,7 @@ chrome.storage.local.get(['activeTab', 'tempPromptObj'], (data) => {
     form: generateForm({
       form: {
         fields: [
-          { id: 'ask-prompt', type: 'textarea', placeholder: 'Ask me anything.', value: tempPromptObj?.ama || ''},
+          { id: 'ask-prompt', type: 'textarea', placeholder: 'Who founded ServiceNow?\nWhat is the hex value for Seahawk blue?', value: tempPromptObj?.ama || ''},
           { label: 'Modifier', id: 'ask-level', type: 'select', placeholder: 'level', options: [{label: 'No modifier', value: 'ask'}, {label: 'Simple Terms', value: 'ask-simple-terms'}, {label: 'Pirate', value: 'ask-pirate'}, {label: 'Step by step', value: 'ask-step-by-step'}] },
           { label: 'Ask Stew', id: 'button-ask-stew', type: 'button' }
         ]
@@ -59,9 +57,14 @@ chrome.storage.local.get(['activeTab', 'tempPromptObj'], (data) => {
     form: generateForm({
       form: {
         fields: [
-          { label: "How much?", id: 'summarize-level', type: 'select', placeholder: 'level', options: [{ value: '1', label: 'A little' }, { value: '2', label: 'Some' }, { value: '3', label: 'A lot' }] },
+          { label: "How much?", id: 'summarize-level', type: 'select', placeholder: 'level', options: [{ value: '1', label: 'CliffsNotes' }, { value: '2', label: 'Highlights' }, { value: '3', label: 'Deep Dive' }] },
           { id: 'summarize-prompt', type: 'textarea', placeholder: 'text to summarize',  value: tempPromptObj?.summarize || '' },
           { label: 'Summarize', id: 'button-summarize', type: 'button' }
+          /**
+           * 1. CliffsNotes: A quick overview of the main points
+           * 2. Highlights: A more detailed overview of the key elements
+           * 3. Deep Dive: An in-depth analysis of all aspects of the subject.
+           */
         ]
       },
     })
@@ -99,6 +102,15 @@ chrome.storage.local.get(['activeTab', 'tempPromptObj'], (data) => {
           { id: 'showButton', type: 'select', label: 'Show Button on ServiceNow', defaultValue: 'Yes', options: [{value: 'Yes', label: 'Yes'},{value: 'No', label: 'No'},]},
           { label: 'Validate', id: 'button-validate', type: 'button' },
           { label: 'Pop out', id: 'button-popout', type: 'button' },
+          { type: 'html', html: `<!--footer with links to privacy, website, etc.-->
+            <footer class="footer mt-auto py-3">
+              <div class="container">
+                <span class="text-muted">Scribe Monster is a project by <a href="https://linkedin.com/in/jacebenson">Jace Benson</a><br/>
+                <a href="https://scribe.monster/privacy">Privacy Policy</a> | <a href="https://scribe.monster">Scribe Monster</a></span> | <a href="https://scribe.monster/resources">Resources</a><br/>
+                <!--Feedback mailto link and resources link-->
+                <span class="text-muted">Love it, hate it, feedback? <a href="mailto:jace@benson.run?subject=Scribe Monster Feedback">Email Me</a></span>
+                </div>
+            </footer>`}
         ]
       }
 
@@ -107,6 +119,17 @@ chrome.storage.local.get(['activeTab', 'tempPromptObj'], (data) => {
   </div>
 </div>
 `
+
+  // Add link event listeners
+  document.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault()
+      const href = e.target.getAttribute('href')
+      // open new tab
+      chrome.tabs.create({ url: href })
+    })
+  })
+
   // Add Button event listeners
   document.querySelector('#button-ask-stew').addEventListener('click', stew.ask)
   document.querySelector('#button-summarize').addEventListener('click', summary.summarize)
