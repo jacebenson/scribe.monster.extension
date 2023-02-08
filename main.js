@@ -96,7 +96,7 @@ chrome.storage.local.get(['activeTab', 'tempPromptObj'], (data) => {
     form: generateForm({
       form: {
         fields: [
-          { id: 'user', type: 'input', placeholder: 'user', label: 'User' },
+          { id: 'user', type: 'input', placeholder: 'user', label: 'Email' },
           { id: 'key', type: 'password', placeholder: 'key', label: 'API Key' },
           { id: 'domain', type: 'input', placeholder: 'domain', label: 'Domain', defaultValue: 'https://scribe.monster' },
           { id: 'showButton', type: 'select', label: 'Show Button on ServiceNow', defaultValue: 'Yes', options: [{value: 'Yes', label: 'Yes'},{value: 'No', label: 'No'},]},
