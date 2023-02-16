@@ -6,15 +6,29 @@ let _validate = ({ user, key, domain }) => {
     document.querySelector('#button-validate').classList.remove('btn-danger');
     let authString = getAuthString({ user, key });
     let url = `${domain}/.redwood/functions/verifyKey`;
+    // some folks can't reach scribe.monster, so we'll set a timeout
+    // if the user can't reach scribe.monster, we'll abort the fetch and 
+    // update the domain to https://scribe-monster-web.onrender.com
+    let timeoutController = new AbortController();
+    let timeout = setTimeout(() => {
+        timeoutController.abort();
+        document.querySelector('#button-validate').innerText = `Couldn't reach ${domain}, try again`;
+        document.querySelector('#button-validate').classList.add('btn-danger');
+        console.log('timeout reached');
+        document.querySelector('#domain').value = 'https://scribe-monster-web.onrender.com';
+    }, 5000);
+
     let options = {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': authString
-        }
+        },
+        signal: timeoutController.signal
     }
     fetch(url, options)
         .then((response) => {
+            clearTimeout(timeout);
             return response.json();
         })
         .then(response => {
@@ -43,8 +57,12 @@ let _validate = ({ user, key, domain }) => {
         })
         .catch(error => {
             // update the button text to say "invalid credentials" and add btn-danger class
-            document.querySelector('#button-validate').innerText = 'Invalid credentials';
+            console.log('error', error)
+            // if classList does not contain btn-danger, add it
+            if (!document.querySelector('#button-validate').classList.contains('btn-danger')) {
+            document.querySelector('#button-validate').innerText = 'Uh oh!  Something went wrong.';
             document.querySelector('#button-validate').classList.add('btn-danger');
+            }
             console.log({ function: '_validate', error });
         });
 };
