@@ -159,6 +159,9 @@ let contentModal = (page) => {
             <button id="scribeMonsterExplainButton" class="btn btn-primary">
               Explain Text
             </button>
+            <button id="scribeMonsterCodeReviewButton" class="btn btn-primary">
+              Code Review
+            </button>
             <button id="scribeMonsterRunCopyButton" class="btn btn-primary">
               Copy
             </button>
@@ -303,6 +306,11 @@ function fetchScribeMonster({ page, ...args }) {
                     }
                     if(action == "explain"){
                         document.getElementById('scribeMonsterCode').value = `1. ${response.code?.trim()}`
+                    }
+                    if(action == "code-reviewer"){
+                        document.getElementById('scribeMonsterCode').value = `${response.code?.trim()}
+
+${input}`
                     }
                     if(action == "complete"){
                         document.getElementById('scribeMonsterCode').value = `${response.code?.trim()}`
@@ -483,6 +491,14 @@ window.addEventListener('load', (function () {
                 let input = document.getElementById('scribeMonsterCode').value;
                 // fetch the code
                 fetchScribeMonster({ page: currentPageToRun, input, action: 'explain' })
+            });
+            let codeReviewButton = document.getElementById('scribeMonsterCodeReviewButton');
+            codeReviewButton.addEventListener("click", function () {
+                // get the prompt value
+                let input = document.getElementById('scribeMonsterCode').value;
+                let prompt = document.getElementById('scribeMonsterPrompt').value || " ";
+                // fetch the code
+                fetchScribeMonster({ page: currentPageToRun, prompt, input, action: 'code-reviewer' })
             });
             // add event listener so when the run copy button is clicked, it's copied to the clipboard
             let runCopyButton = document.getElementById('scribeMonsterRunCopyButton');
