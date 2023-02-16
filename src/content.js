@@ -190,7 +190,8 @@ function addButton(page) {
         // check if chrome.storage.sync.get for scribeMonsterButtonEnabled is true
         chrome.storage.sync.get(['scribeMonsterShowButton'], (data)=>{
             console.log({function: 'addButton', data});
-            if (data.scribeMonsterShowButton == "Yes") {
+            // they may not have set it yet, in that case treat it as Yes
+            if (data.scribeMonsterShowButton == "Yes" || data.scribeMonsterShowButton == undefined) {
                 const newSpan = document.createElement("span");
                 const scribeMonsterBtn = document.createElement("button");
                 scribeMonsterBtn.setAttribute("type", "button");
